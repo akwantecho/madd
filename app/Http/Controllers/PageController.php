@@ -310,6 +310,38 @@ class PageController extends Controller
     }
 
     /**
+     * Reports — analytical summaries across the system. Placeholder data for
+     * the frontend phase: KPI overview + a catalog of available reports.
+     */
+    public function reports()
+    {
+        $summary = [
+            ['key' => 'Total Revenue',  'value' => '324,500 ر.س', 'icon' => 'bi-cash-stack',     'color' => 'green', 'change' => '+18%', 'dir' => 'up'],
+            ['key' => 'Exhibitions',    'value' => '48',          'icon' => 'bi-easel2',         'color' => 'brand', 'change' => '+12%', 'dir' => 'up'],
+            ['key' => 'Net Profit',     'value' => '226,300 ر.س', 'icon' => 'bi-graph-up-arrow', 'color' => 'blue',  'change' => '+9%',  'dir' => 'up'],
+            ['key' => 'Pending Payments', 'value' => '45,000 ر.س', 'icon' => 'bi-hourglass-split', 'color' => 'amber', 'change' => '-2%', 'dir' => 'down'],
+        ];
+
+        $reports = [
+            ['title' => 'Financial Report',   'desc' => 'الإيرادات والمصروفات وصافي الربح', 'icon' => 'bi-wallet2',           'color' => 'green', 'route' => 'finance'],
+            ['title' => 'Exhibitions Report', 'desc' => 'أداء المعارض والإشغال',            'icon' => 'bi-easel2',            'color' => 'brand', 'route' => 'exhibitions'],
+            ['title' => 'Contacts Report',    'desc' => 'العملاء والجهات والموردين',         'icon' => 'bi-person-rolodex',    'color' => 'blue',  'route' => 'contacts'],
+            ['title' => 'Inventory Report',   'desc' => 'حركة المخزون والمعدات',            'icon' => 'bi-box-seam',          'color' => 'amber', 'route' => 'stock'],
+            ['title' => 'Contracts Report',   'desc' => 'العقود والفواتير المصدرة',          'icon' => 'bi-file-earmark-text', 'color' => 'red',   'route' => 'contracts'],
+            ['title' => 'Tasks Report',       'desc' => 'إنجاز المهام والأداء التشغيلي',     'icon' => 'bi-list-check',        'color' => 'gray',  'route' => 'tasks'],
+        ];
+
+        $recent = [
+            ['title' => 'تقرير مالي — مايو 2025', 'type' => 'Financial Report', 'date' => '2025-06-01', 'format' => 'PDF'],
+            ['title' => 'تقرير المعارض — الربع الثاني', 'type' => 'Exhibitions Report', 'date' => '2025-05-28', 'format' => 'XLSX'],
+            ['title' => 'تقرير المخزون — مايو 2025', 'type' => 'Inventory Report', 'date' => '2025-05-20', 'format' => 'PDF'],
+            ['title' => 'تقرير العملاء — أبريل 2025', 'type' => 'Contacts Report', 'date' => '2025-05-02', 'format' => 'CSV'],
+        ];
+
+        return view('pages.reports', compact('summary', 'reports', 'recent'));
+    }
+
+    /**
      * Sample exhibitions used across the dashboard and listing page.
      */
     private function sampleExhibitions(int $count): array

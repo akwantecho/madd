@@ -10,6 +10,9 @@
                 <i class="bi bi-geo-alt"></i> {{ $exhibition['location'] }}
                 · {{ $exhibition['start'] }} → {{ $exhibition['end'] }}
                 · @include('partials.status', ['status' => $exhibition['status']])
+                @if (!empty($exhibition['tag']))
+                    · <span class="badge-soft {{ $exhibition['tagColor'] ?? 'gray' }}">{{ __($exhibition['tag']) }}</span>
+                @endif
             </p>
         </div>
         <button class="btn-brand"><i class="bi bi-pencil"></i>{{ __('Edit') }}</button>
@@ -48,6 +51,20 @@
                         <li><span class="k">{{ __('End Date') }}</span><span class="v">{{ $exhibition['end'] }}</span></li>
                         <li><span class="k">{{ __('Status') }}</span><span class="v">{{ __($exhibition['status']) }}</span></li>
                     </ul>
+
+                    @php
+                        $taskList = collect($tasks);
+                        $done = $taskList->where('status', 'Completed')->count();
+                        $totalTasks = max($taskList->count(), 1);
+                        $pct = (int) round($done / $totalTasks * 100);
+                    @endphp
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="form-label mb-0">{{ __('Tasks Progress') }}</span>
+                            <span class="cell-muted" style="font-size:12px;">{{ $done }} / {{ $taskList->count() }}</span>
+                        </div>
+                        <div class="progress-mini"><span style="width: {{ $pct }}%"></span></div>
+                    </div>
                 </div>
             </div>
             <div class="card">

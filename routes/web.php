@@ -18,6 +18,7 @@ Route::get('/stock', [PageController::class, 'stock'])->name('stock');
 Route::get('/oman', [PageController::class, 'oman'])->name('oman');
 
 Route::get('/archive', [PageController::class, 'archive'])->name('archive');
+Route::get('/reports', [PageController::class, 'reports'])->name('reports');
 Route::get('/data', [PageController::class, 'data'])->name('data');
 Route::get('/settings', [PageController::class, 'settings'])->name('settings');
 
