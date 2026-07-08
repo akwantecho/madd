@@ -826,9 +826,14 @@
 
   // Image-slot ids are namespaced per case so each case has its own
   // dropped images. Rewrite the four slots' ids in place.
+  // Slots that already have an image saved to the project (assets/uploads/<id>.webp)
+  // get that file as their src fallback, so uploaded images persist across devices
+  // and survive a cleared local cache. The dropped (local) image still takes priority.
+  var SAVED_SLOTS = ["ID-01-G-01","ID-01-G-02","ID-01-G-03","ID-01-G-04","ID-01-G-05","ID-01-G-06","ID-02-G-01","ID-02-G-02","ID-02-G-03","ID-02-G-04","ID-02-G-05","ID-02-G-06","ID-02-HERO","ID-04-G-01","ID-04-G-02","ID-04-G-03","ID-04-G-04","ID-04-G-05","ID-04-G-06","PADEL-G-01","PADEL-G-02","PADEL-G-03","PADEL-G-04","PADEL-G-05","PADEL-G-06","PROJ-01-G-01","PROJ-01-G-02","PROJ-01-G-03","PROJ-01-G-04","PROJ-01-G-05","PROJ-01-G-06","PROJ-01-HERO","PROJ-05-HERO","SIDRA-G-01","SIDRA-G-02","SIDRA-G-03","SIDRA-G-04","SIDRA-G-05","SIDRA-G-06","SMASH-G-01","SMASH-G-02","SMASH-G-03","SMASH-G-04","SMASH-G-05","SMASH-G-06","SMASH-HERO"];
   document.querySelectorAll('image-slot').forEach(el => {
     const base = el.id;
     el.id = id + '-' + base;
+    if (SAVED_SLOTS.indexOf(el.id) !== -1) el.setAttribute('src', 'assets/uploads/' + el.id + '.webp');
     // also update the visible code badge above the slot
     const code = el.id;
     const sib = el.parentElement && el.parentElement.querySelector('.thumb-code');

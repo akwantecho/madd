@@ -48,9 +48,10 @@
 
 (() => {
   const STATE_FILE = '.image-slots.state.json';
-  // 2× a ~600px slot in a 1920-wide deck — retina-sharp without making the
-  // sidecar enormous. A 1200px WebP at q=0.85 is ~150-300KB.
-  const MAX_DIM = 1200;
+  // Tuned for a multi-page portfolio where MANY slots share one ~2MB sidecar:
+  // cap the longest side smaller and compress harder so each stored image is
+  // ~4× lighter than the default — the budget then holds far more uploads.
+  const MAX_DIM = 820;
   // Raster formats only. SVG is excluded (can carry script; createImageBitmap
   // on SVG blobs is inconsistent). GIF is excluded because the canvas
   // re-encode keeps only the first frame, so an animated GIF would silently
@@ -151,7 +152,7 @@
       const canvas = document.createElement('canvas');
       canvas.width = w; canvas.height = h;
       canvas.getContext('2d').drawImage(bitmap, 0, 0, w, h);
-      return canvas.toDataURL('image/webp', 0.85);
+      return canvas.toDataURL('image/webp', 0.72);
     } finally {
       bitmap.close && bitmap.close();
     }
