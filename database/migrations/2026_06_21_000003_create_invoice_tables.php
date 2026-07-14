@@ -17,11 +17,11 @@ return new class extends Migration
             $table->foreignId('client_id')->nullable()->constrained('contacts')->nullOnDelete();
             $table->foreignId('contract_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('exhibition_id')->nullable()->constrained()->nullOnDelete();
-            $table->string('currency')->default('ر.س');
+            $table->string('currency')->default('ر.ع');
             $table->date('issue_date')->nullable();
             $table->date('due_date')->nullable();
             $table->string('status')->default('Unpaid');
-            $table->decimal('vat_rate', 5, 2)->default(15);
+            $table->decimal('vat_rate', 5, 2)->default(5);
             $table->decimal('discount', 15, 2)->default(0);
             $table->decimal('paid', 15, 2)->default(0);
             $table->string('po')->nullable();

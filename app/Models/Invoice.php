@@ -14,9 +14,13 @@ class Invoice extends Model
     protected $casts = [
         'issue_date' => 'date',
         'due_date' => 'date',
+        'period_from' => 'date',
+        'period_to' => 'date',
         'vat_rate' => 'decimal:2',
         'discount' => 'decimal:2',
         'paid' => 'decimal:2',
+        'timeline' => 'array',
+        'scope_items' => 'array',
     ];
 
     public function client()

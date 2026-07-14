@@ -52,17 +52,13 @@
                                 <div class="col-md-6">
                                     <label class="form-label">{{ __('Currency') }}</label>
                                     <select name="currency" class="form-select w-100">
-                                        @foreach (['SAR — ر.س', 'USD — $', 'AED — د.إ'] as $cur)
-                                            <option @selected($settings['currency'] === $cur)>{{ $cur }}</option>
-                                        @endforeach
+                                        <option value="OMR — ر.ع" selected>{{ __('Omani Rial') }} — ر.ع</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">{{ __('Timezone') }}</label>
                                     <select name="timezone" class="form-select w-100">
-                                        @foreach (['Asia/Riyadh', 'Asia/Dubai', 'UTC'] as $tz)
-                                            <option @selected($settings['timezone'] === $tz)>{{ $tz }}</option>
-                                        @endforeach
+                                        <option value="Asia/Muscat" selected>Asia/Muscat</option>
                                     </select>
                                 </div>
                             </div>
@@ -252,9 +248,7 @@
                         <div class="col-md-4">
                             <label class="form-label">{{ __('Default Currency') }}</label>
                             <select name="default_currency" class="form-select w-100">
-                                @foreach (['SAR — ر.س', 'USD — $', 'AED — د.إ'] as $cur)
-                                    <option @selected($settings['default_currency'] === $cur)>{{ $cur }}</option>
-                                @endforeach
+                                <option value="OMR — ر.ع" selected>{{ __('Omani Rial') }} — ر.ع</option>
                             </select>
                         </div>
                         <div class="col-md-4">

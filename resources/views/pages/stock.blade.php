@@ -3,7 +3,7 @@
 
 @php
     $stockType = $active === 'services' ? 'service' : 'equipment';
-    $addLabel = $active === 'services' ? 'Add Service' : 'Add Item';
+    $addLabel = $active === 'services' ? 'Add Service' : ($active === 'notices' ? 'Add Notice' : 'Add Item');
 @endphp
 
 @section('content')
@@ -12,7 +12,11 @@
             <h1>{{ __('Stock') }}</h1>
             <p class="subtitle">{{ __('Devices, equipment and services') }}</p>
         </div>
-        <button class="btn-brand" id="addStockBtn"><i class="bi bi-plus-lg"></i>{{ __($addLabel) }}</button>
+        @if ($active === 'notices')
+            <button class="btn-brand" id="addNoticeBtn"><i class="bi bi-plus-lg"></i>{{ __('Add Notice') }}</button>
+        @else
+            <button class="btn-brand" id="addStockBtn"><i class="bi bi-plus-lg"></i>{{ __($addLabel) }}</button>
+        @endif
     </div>
 
     <div class="toolbar full-bleed sheet-aligned" style="padding-block:0;">
@@ -49,6 +53,32 @@
                             </tr>
                         @empty
                             <tr><td colspan="7"><div class="empty-state"><i class="bi bi-inbox"></i>{{ __('No records yet. Click “:add” to create one.', ['add' => __($addLabel)]) }}</div></td></tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                @elseif ($active === 'notices')
+                    <table class="data sheet">
+                        <thead><tr>
+                            <th style="width:46px">#</th>
+                            <th>{{ __('Notice / Clause') }}</th><th style="width:90px">{{ __('Actions') }}</th>
+                        </tr></thead>
+                        <tbody>
+                        @forelse ($notices as $n)
+                            <tr data-notice="{{ json_encode($n, JSON_UNESCAPED_UNICODE) }}">
+                                <td class="cell-muted">{{ $loop->iteration }}</td>
+                                <td><i class="bi bi-info-circle me-1"></i>{{ $n['body'] }}</td>
+                                <td>
+                                    <div class="row-actions">
+                                        <button type="button" class="edit-notice" title="{{ __('Edit') }}"><i class="bi bi-pencil"></i></button>
+                                        <form method="POST" action="{{ route('notices.destroy', $n['id']) }}" onsubmit="return confirm('{{ __('Delete this record?') }}')" style="display:inline">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="danger" title="{{ __('Delete') }}"><i class="bi bi-trash3"></i></button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="3"><div class="empty-state"><i class="bi bi-inbox"></i>{{ __('No records yet. Click “:add” to create one.', ['add' => __('Add Notice')]) }}</div></td></tr>
                         @endforelse
                         </tbody>
                     </table>
@@ -140,6 +170,30 @@
             </div>
         </div>
     </div>
+
+    {{-- Add / Edit notice modal --}}
+    <div class="modal fade" id="noticeModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border:1px solid var(--line); border-radius:16px;">
+                <form method="POST" id="noticeForm" action="{{ route('notices.store') }}">
+                    @csrf
+                    <input type="hidden" name="_method" id="noticeMethod" value="POST">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="noticeModalTitle" style="font-size:16px; font-weight:700;">{{ __('Add Notice') }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
+                    </div>
+                    <div class="modal-body">
+                        <label class="form-label">{{ __('Notice / Clause') }} <span class="req">*</span></label>
+                        <textarea name="body" id="nBody" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="page-btn" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                        <button type="submit" class="btn-brand">{{ __('Save') }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -152,7 +206,8 @@
         const updateBase = @json(url('stock'));
         const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = (v ?? ''); };
 
-        document.getElementById('addStockBtn').addEventListener('click', () => {
+        const addStockBtn = document.getElementById('addStockBtn');
+        if (addStockBtn) addStockBtn.addEventListener('click', () => {
             form.reset();
             form.action = storeAction;
             document.getElementById('stockMethod').value = 'POST';
@@ -180,6 +235,34 @@
                 modal.show();
             });
         });
+
+        /* ---- Terms & notices ---- */
+        const noticeModalEl = document.getElementById('noticeModal');
+        if (noticeModalEl) {
+            const nModal = new bootstrap.Modal(noticeModalEl);
+            const nForm = document.getElementById('noticeForm');
+            const nStore = @json(route('notices.store'));
+            const nBase = @json(url('notices'));
+            const addNoticeBtn = document.getElementById('addNoticeBtn');
+            if (addNoticeBtn) addNoticeBtn.addEventListener('click', () => {
+                nForm.reset();
+                nForm.action = nStore;
+                document.getElementById('noticeMethod').value = 'POST';
+                document.getElementById('noticeModalTitle').textContent = @json(__('Add Notice'));
+                nModal.show();
+            });
+            document.querySelectorAll('.edit-notice').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    const d = JSON.parse(btn.closest('tr').dataset.notice);
+                    nForm.reset();
+                    nForm.action = nBase + '/' + d.id;
+                    document.getElementById('noticeMethod').value = 'PUT';
+                    document.getElementById('noticeModalTitle').textContent = @json(__('Edit'));
+                    document.getElementById('nBody').value = d.body;
+                    nModal.show();
+                });
+            });
+        }
     })();
 </script>
 @endpush

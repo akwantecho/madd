@@ -9,6 +9,7 @@ use App\Models\Exhibition;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Setting;
+use App\Models\Notice;
 use App\Models\StockItem;
 use App\Models\Subtask;
 use App\Models\Task;
@@ -17,6 +18,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class PageController extends Controller
 {
@@ -24,13 +26,14 @@ class PageController extends Controller
     private function company(): array
     {
         return [
-            'logo' => 'MA',
-            'name' => 'مؤسسة محمد عبدالله',
-            'address' => 'شارع انس ابن مالك، الرياض',
-            'country' => 'المملكة العربية السعودية',
-            'vat' => '12014506901345',
-            'phone' => '+966 11 456 7890',
-            'email' => 'billing@mabdullah.sa',
+            'logo' => 'EP',
+            'name' => 'شركة المعارض العالمية (افنت بلس)',
+            'address' => 'ولاية السيب - الخوض - بناية الطيف 4',
+            'country' => 'سلطنة عُمان - محافظة مسقط',
+            'vat' => '',
+            'cr' => '160141',
+            'phone' => '+968 76629966',
+            'email' => 'Eventplusoman@gmail.com',
         ];
     }
 
@@ -49,7 +52,7 @@ class PageController extends Controller
         ];
     }
 
-    private function money($value, string $currency = 'ر.س'): string
+    private function money($value, string $currency = 'ر.ع'): string
     {
         return number_format((float) $value, 0).' '.$currency;
     }
@@ -609,6 +612,7 @@ class PageController extends Controller
         $types = [
             'equipment' => ['label' => 'Devices & Equipment', 'icon' => 'bi-pc-display'],
             'services' => ['label' => 'Services',            'icon' => 'bi-tools'],
+            'notices' => ['label' => 'Terms & Notices',      'icon' => 'bi-info-circle'],
         ];
 
         $active = request('type', 'equipment');
@@ -624,9 +628,12 @@ class PageController extends Controller
             'id' => $s->id, 'name' => $s->name, 'unit' => $s->unit, 'price' => $this->money($s->price), 'price_raw' => (float) $s->price, 'status' => $s->status,
         ])->all();
 
+        $notices = Notice::orderBy('position')->orderBy('id')->get()
+            ->map(fn ($n) => ['id' => $n->id, 'body' => $n->body])->all();
+
         $stockStatuses = $this->taskStatuses();
 
-        return view('pages.stock', compact('types', 'active', 'equipment', 'services', 'stockStatuses'));
+        return view('pages.stock', compact('types', 'active', 'equipment', 'services', 'notices', 'stockStatuses'));
     }
 
     public function stockStore(Request $request)
@@ -650,6 +657,29 @@ class PageController extends Controller
         $stockItem->delete();
 
         return redirect()->back()->with('status', __('Deleted successfully.'));
+    }
+
+    /* ---- Terms & notices library (managed in Stock, reused in contracts) ---- */
+
+    public function noticeStore(Request $request)
+    {
+        Notice::create($request->validate(['body' => 'required|string|max:2000']));
+
+        return redirect()->route('stock', ['type' => 'notices'])->with('status', __('Saved successfully.'));
+    }
+
+    public function noticeUpdate(Request $request, Notice $notice)
+    {
+        $notice->update($request->validate(['body' => 'required|string|max:2000']));
+
+        return redirect()->route('stock', ['type' => 'notices'])->with('status', __('Saved successfully.'));
+    }
+
+    public function noticeDestroy(Notice $notice)
+    {
+        $notice->delete();
+
+        return redirect()->route('stock', ['type' => 'notices'])->with('status', __('Deleted successfully.'));
     }
 
     private function validateStock(Request $request): array
@@ -704,12 +734,12 @@ class PageController extends Controller
 
         $settings = [
             'system_name' => Setting::get('system_name', config('app.name')),
-            'currency' => Setting::get('currency', 'SAR — ر.س'),
-            'timezone' => Setting::get('timezone', 'Asia/Riyadh'),
+            'currency' => Setting::get('currency', 'OMR — ر.ع'),
+            'timezone' => Setting::get('timezone', 'Asia/Muscat'),
             'profile_name' => Setting::get('profile_name', 'Admin'),
             'profile_email' => Setting::get('profile_email', 'admin@eventpuls.sa'),
-            'default_currency' => Setting::get('default_currency', 'SAR — ر.س'),
-            'vat_rate' => Setting::get('vat_rate', '15'),
+            'default_currency' => Setting::get('default_currency', 'OMR — ر.ع'),
+            'vat_rate' => Setting::get('vat_rate', '5'),
             'invoice_prefix' => Setting::get('invoice_prefix', 'INV-'),
         ];
 
@@ -832,7 +862,7 @@ class PageController extends Controller
         $customer = [
             'name' => $client?->name ?? '',
             'address' => $client?->address ?? '',
-            'country' => $client?->country ?? 'المملكة العربية السعودية',
+            'country' => $client?->country ?? 'سلطنة عُمان',
             'vat' => $client?->vat_no ?? '',
             'contact' => $client?->representative ?? $client?->phone ?? '',
         ];
@@ -900,9 +930,39 @@ class PageController extends Controller
             ->map(fn ($e) => ['id' => $e->id, 'name' => $e->title])->all();
     }
 
+    /**
+     * Contracts available to link an invoice to. Each option carries the
+     * contract period (from/to), its client, and its payment installments so
+     * the invoice editor can auto-fill the period and bill the installments.
+     */
+    private function contractOptions(): array
+    {
+        return Contract::with(['client', 'items', 'schedules'])->latest('id')->get()
+            ->map(function ($c) {
+                $value = (float) $c->value;
+
+                return [
+                    'id' => $c->id,
+                    'name' => $c->number.' — '.($c->client->name ?? $c->type ?? __('Contract')),
+                    'clientId' => $c->client_id,
+                    'start' => optional($c->start_date)->format('Y-m-d'),
+                    'end' => optional($c->end_date)->format('Y-m-d'),
+                    'installments' => $c->schedules->map(fn ($s) => [
+                        'item' => $s->description ?: __('Installment'),
+                        'amount' => round($value * (float) $s->percent / 100, 2),
+                    ])->values()->all(),
+                ];
+            })->all();
+    }
+
+    /** Random, unique invoice number (e.g. INV-2026-482913). */
     private function nextInvoiceNumber(): string
     {
-        return 'INV-'.str_pad((string) ((int) Invoice::max('id') + 1), 4, '0', STR_PAD_LEFT);
+        do {
+            $number = 'INV-'.Carbon::now()->format('Y').'-'.random_int(100000, 999999);
+        } while (Invoice::where('number', $number)->exists());
+
+        return $number;
     }
 
     private function nextContractNumber(): string
@@ -910,15 +970,28 @@ class PageController extends Controller
         return 'CT-'.str_pad((string) ((int) Contract::max('id') + 1), 4, '0', STR_PAD_LEFT);
     }
 
+    /** Keep only rows that have at least one non-empty cell, limited to $keys. */
+    private function cleanRows(array $rows, array $keys): array
+    {
+        return array_values(array_filter(array_map(function ($row) use ($keys) {
+            $out = [];
+            foreach ($keys as $k) {
+                $out[$k] = isset($row[$k]) ? trim((string) $row[$k]) : '';
+            }
+
+            return $out;
+        }, $rows), fn ($row) => implode('', $row) !== ''));
+    }
+
     /** New invoice editor. */
     public function invoiceCreate()
     {
         return $this->invoiceForm(new Invoice([
             'number' => $this->nextInvoiceNumber(),
-            'currency' => 'ر.س',
+            'currency' => 'ر.ع',
             'issue_date' => Carbon::now(),
             'due_date' => Carbon::now()->addDays(15),
-            'vat_rate' => 15,
+            'vat_rate' => 0,
             'status' => 'Draft',
         ]));
     }
@@ -934,14 +1007,16 @@ class PageController extends Controller
     {
         $invoice = [
             'number' => $model->number,
-            'currency' => $model->currency ?? 'ر.س',
+            'currency' => $model->currency ?? 'ر.ع',
             'date' => optional($model->issue_date)->format('Y-m-d'),
             'due' => optional($model->due_date)->format('Y-m-d'),
-            'po' => $model->po,
+            'periodFrom' => optional($model->period_from)->format('Y-m-d'),
+            'periodTo' => optional($model->period_to)->format('Y-m-d'),
             'notes' => $model->notes,
-            'vatRate' => (float) ($model->vat_rate ?? 15),
+            'vatRate' => (float) ($model->vat_rate ?? 0),
             'discount' => (float) ($model->discount ?? 0),
             'clientId' => $model->client_id,
+            'contractId' => $model->contract_id,
             'exhibitionId' => $model->exhibition_id,
         ];
 
@@ -949,15 +1024,88 @@ class PageController extends Controller
             ? $model->items->map(fn ($i) => ['desc' => $i->description, 'qty' => (float) $i->qty, 'price' => (float) $i->price])->all()
             : [];
 
+        $timeline = $model->exists ? ($model->timeline ?? []) : [];
+        $scopeItems = $model->exists ? ($model->scope_items ?? []) : [];
+
         return view('pages.invoice-create', [
             'company' => $this->company(),
             'invoice' => $invoice,
             'items' => $items,
+            'timeline' => $timeline,
+            'scopeItems' => $scopeItems,
             'clients' => $this->clientOptions(),
+            'contracts' => $this->contractOptions(),
             'exhibitions' => $this->exhibitionOptions(),
             'isEdit' => $model->exists,
             'action' => $model->exists ? route('invoices.update', $model) : route('invoices.store'),
         ]);
+    }
+
+    /** Quick-add a client (contact) from a document editor; always returns JSON. */
+    public function quickClientStore(Request $request)
+    {
+        $v = validator($request->all(), [
+            'name' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:50',
+            'email' => 'nullable|email|max:255',
+        ]);
+
+        if ($v->fails()) {
+            return response()->json(['errors' => $v->errors()], 422);
+        }
+
+        $data = $v->validated();
+        $client = Contact::create([
+            'type' => 'client',
+            'name' => $data['name'],
+            'phone' => $data['phone'] ?? null,
+            'email' => $data['email'] ?? null,
+            'status' => 'Active',
+        ]);
+
+        return response()->json(['id' => $client->id, 'name' => $client->name]);
+    }
+
+    /** Quick-add a stock item from a document editor; always returns JSON. */
+    public function quickStockStore(Request $request)
+    {
+        $v = validator($request->all(), [
+            'name' => 'required|string|max:255',
+            'price' => 'nullable|numeric|min:0',
+        ]);
+
+        if ($v->fails()) {
+            return response()->json(['errors' => $v->errors()], 422);
+        }
+
+        $data = $v->validated();
+        $item = StockItem::create([
+            'type' => 'equipment',
+            'name' => $data['name'],
+            'price' => $data['price'] ?? 0,
+            'status' => 'Active',
+        ]);
+
+        return response()->json(['id' => $item->id, 'name' => $item->name, 'price' => (float) $item->price]);
+    }
+
+    /** Quick-add an exhibition from a document editor; always returns JSON. */
+    public function quickExhibitionStore(Request $request)
+    {
+        $v = validator($request->all(), [
+            'title' => 'required|string|max:255',
+            'location' => 'nullable|string|max:255',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+        ]);
+
+        if ($v->fails()) {
+            return response()->json(['errors' => $v->errors()], 422);
+        }
+
+        $exhibition = Exhibition::create($v->validated() + ['status' => 'Upcoming']);
+
+        return response()->json(['id' => $exhibition->id, 'name' => $exhibition->title]);
     }
 
     public function invoiceStore(Request $request)
@@ -989,11 +1137,13 @@ class PageController extends Controller
         $data = $request->validate([
             'number' => 'required|string|max:255|'.$unique,
             'client_id' => 'nullable|exists:contacts,id',
+            'contract_id' => 'nullable|exists:contracts,id',
             'exhibition_id' => 'nullable|exists:exhibitions,id',
             'currency' => 'nullable|string|max:20',
             'issue_date' => 'nullable|date',
             'due_date' => 'nullable|date|after_or_equal:issue_date',
-            'po' => 'nullable|string|max:255',
+            'period_from' => 'nullable|date',
+            'period_to' => 'nullable|date|after_or_equal:period_from',
             'notes' => 'nullable|string',
             'vat_rate' => 'nullable|numeric|min:0|max:100',
             'discount' => 'nullable|numeric|min:0',
@@ -1001,24 +1151,46 @@ class PageController extends Controller
             'items.*.description' => 'nullable|string|max:500',
             'items.*.qty' => 'nullable|numeric|min:0',
             'items.*.price' => 'nullable|numeric|min:0',
+            'timeline' => 'array',
+            'timeline.*.item' => 'nullable|string|max:255',
+            'timeline.*.duration' => 'nullable|string|max:255',
+            'scope' => 'array',
+            'scope.*.item' => 'nullable|string|max:255',
+            'scope.*.qty' => 'nullable|string|max:100',
+            'scope.*.price' => 'nullable|string|max:100',
+            'scope.*.total' => 'nullable|string|max:100',
         ]);
 
-        DB::transaction(function () use ($invoice, $data, $request) {
+        $scope = $this->cleanRows($data['scope'] ?? [], ['item', 'qty', 'price', 'total']);
+
+        DB::transaction(function () use ($invoice, $data, $request, $scope) {
             $invoice->fill([
                 'number' => $data['number'],
                 'client_id' => $data['client_id'] ?? null,
+                'contract_id' => $data['contract_id'] ?? null,
                 'exhibition_id' => $data['exhibition_id'] ?? null,
-                'currency' => $data['currency'] ?? 'ر.س',
+                'currency' => $data['currency'] ?? 'ر.ع',
                 'issue_date' => $data['issue_date'] ?? null,
                 'due_date' => $data['due_date'] ?? null,
-                'po' => $data['po'] ?? null,
+                'period_from' => $data['period_from'] ?? null,
+                'period_to' => $data['period_to'] ?? null,
+                'po' => null,
                 'notes' => $data['notes'] ?? null,
-                'vat_rate' => $data['vat_rate'] ?? 15,
+                'vat_rate' => $data['vat_rate'] ?? 0,
                 'discount' => $data['discount'] ?? 0,
+                'timeline' => $this->cleanRows($data['timeline'] ?? [], ['item', 'duration']),
+                'scope_items' => $scope,
                 'status' => $this->documentStatus($request, $invoice->status, 'Unpaid'),
             ])->save();
 
-            $this->syncLineItems($invoice->items(), $request->input('items', []));
+            // "بنود الفاتورة" (scope) is the billing source: each row's total feeds the invoice amount.
+            $lineItems = array_map(fn ($r) => [
+                'description' => $r['item'],
+                'qty' => 1,
+                'price' => (float) str_replace(',', '', preg_replace('/[^\d.\-]/', '', $r['total'])),
+            ], $scope);
+
+            $this->syncLineItems($invoice->items(), $lineItems);
         });
     }
 
@@ -1032,10 +1204,10 @@ class PageController extends Controller
         return $this->contractForm(new Contract([
             'number' => $this->nextContractNumber(),
             'type' => 'عقد خدمات',
-            'currency' => 'ر.س',
+            'currency' => 'ر.ع',
             'start_date' => Carbon::now(),
             'end_date' => Carbon::now()->addMonths(3),
-            'vat_rate' => 15,
+            'vat_rate' => 5,
             'status' => 'Draft',
         ]));
     }
@@ -1052,17 +1224,17 @@ class PageController extends Controller
         $contract = [
             'number' => $model->number,
             'type' => $model->type ?? 'عقد خدمات',
-            'currency' => $model->currency ?? 'ر.س',
+            'currency' => $model->currency ?? 'ر.ع',
             'start' => optional($model->start_date)->format('Y-m-d'),
             'end' => optional($model->end_date)->format('Y-m-d'),
-            'vatRate' => (float) ($model->vat_rate ?? 15),
+            'vatRate' => (float) ($model->vat_rate ?? 5),
             'notes' => $model->notes,
             'clientId' => $model->client_id,
             'exhibitionId' => $model->exhibition_id,
         ];
 
         $items = $model->exists
-            ? $model->items->map(fn ($i) => ['desc' => $i->description, 'qty' => (float) $i->qty, 'price' => (float) $i->price])->all()
+            ? $model->items->map(fn ($i) => ['desc' => $i->description, 'qty' => (float) $i->qty, 'price' => (float) $i->price, 'days' => (int) $i->days])->all()
             : [];
 
         $schedule = $model->exists
@@ -1071,12 +1243,19 @@ class PageController extends Controller
 
         $terms = $model->exists ? $model->terms->pluck('body')->all() : [];
 
+        $stock = StockItem::orderBy('name')->get(['name', 'price'])
+            ->map(fn ($s) => ['name' => $s->name, 'price' => (float) $s->price])->all();
+
+        $notices = Notice::orderBy('position')->orderBy('id')->pluck('body')->all();
+
         return view('pages.contract-create', [
             'company' => $this->company(),
             'contract' => $contract,
             'items' => $items,
             'schedule' => $schedule,
             'terms' => $terms,
+            'stock' => $stock,
+            'notices' => $notices,
             'clients' => $this->clientOptions(),
             'exhibitions' => $this->exhibitionOptions(),
             'isEdit' => $model->exists,
@@ -1124,6 +1303,7 @@ class PageController extends Controller
             'items.*.description' => 'nullable|string|max:500',
             'items.*.qty' => 'nullable|numeric|min:0',
             'items.*.price' => 'nullable|numeric|min:0',
+            'items.*.days' => 'nullable|numeric|min:0',
             'schedule' => 'array',
             'schedule.*.description' => 'nullable|string|max:500',
             'schedule.*.percent' => 'nullable|numeric|min:0|max:100',
@@ -1138,10 +1318,10 @@ class PageController extends Controller
                 'client_id' => $data['client_id'] ?? null,
                 'exhibition_id' => $data['exhibition_id'] ?? null,
                 'type' => $data['type'] ?? 'عقد خدمات',
-                'currency' => $data['currency'] ?? 'ر.س',
+                'currency' => $data['currency'] ?? 'ر.ع',
                 'start_date' => $data['start_date'] ?? null,
                 'end_date' => $data['end_date'] ?? null,
-                'vat_rate' => $data['vat_rate'] ?? 15,
+                'vat_rate' => $data['vat_rate'] ?? 5,
                 'notes' => $data['notes'] ?? null,
                 'status' => $this->documentStatus($request, $contract->status, 'Active'),
             ])->save();
@@ -1174,22 +1354,29 @@ class PageController extends Controller
     {
         $relation->delete();
         $position = 0;
+        $hasDays = Schema::hasColumn($relation->getRelated()->getTable(), 'days');
 
         foreach ($rows as $row) {
             $desc = trim((string) ($row['description'] ?? ''));
             $qty = $row['qty'] ?? null;
             $price = $row['price'] ?? null;
+            $days = $row['days'] ?? null;
 
             if ($desc === '' && $this->blank($qty) && $this->blank($price)) {
                 continue;
             }
 
-            $relation->create([
+            $payload = [
                 'description' => $desc,
                 'qty' => $this->blank($qty) ? 1 : $qty,
                 'price' => $this->blank($price) ? 0 : $price,
                 'position' => $position++,
-            ]);
+            ];
+            if ($hasDays) {
+                $payload['days'] = $this->blank($days) ? 1 : max(1, (int) $days);
+            }
+
+            $relation->create($payload);
         }
     }
 

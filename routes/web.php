@@ -36,6 +36,9 @@ Route::put('/contracts/{contract}', [PageController::class, 'contractUpdate'])->
 Route::delete('/contracts/{contract}', [PageController::class, 'contractDestroy'])->name('contracts.destroy');
 Route::get('/contracts/{id}', [PageController::class, 'contractShow'])->name('contracts.show');
 
+Route::post('/invoices/quick-client', [PageController::class, 'quickClientStore'])->name('invoices.quickClient');
+Route::post('/invoices/quick-exhibition', [PageController::class, 'quickExhibitionStore'])->name('invoices.quickExhibition');
+Route::post('/invoices/quick-stock', [PageController::class, 'quickStockStore'])->name('invoices.quickStock');
 Route::get('/invoices/create', [PageController::class, 'invoiceCreate'])->name('invoices.create');
 Route::post('/invoices', [PageController::class, 'invoiceStore'])->name('invoices.store');
 Route::get('/invoices/{invoice}/edit', [PageController::class, 'invoiceEdit'])->name('invoices.edit');
@@ -46,6 +49,9 @@ Route::get('/stock', [PageController::class, 'stock'])->name('stock');
 Route::post('/stock', [PageController::class, 'stockStore'])->name('stock.store');
 Route::put('/stock/{stockItem}', [PageController::class, 'stockUpdate'])->name('stock.update');
 Route::delete('/stock/{stockItem}', [PageController::class, 'stockDestroy'])->name('stock.destroy');
+Route::post('/notices', [PageController::class, 'noticeStore'])->name('notices.store');
+Route::put('/notices/{notice}', [PageController::class, 'noticeUpdate'])->name('notices.update');
+Route::delete('/notices/{notice}', [PageController::class, 'noticeDestroy'])->name('notices.destroy');
 
 Route::get('/archive', [PageController::class, 'archive'])->name('archive');
 Route::get('/reports', [PageController::class, 'reports'])->name('reports');

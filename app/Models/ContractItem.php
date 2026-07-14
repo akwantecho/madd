@@ -11,6 +11,7 @@ class ContractItem extends Model
     protected $casts = [
         'qty' => 'decimal:2',
         'price' => 'decimal:2',
+        'days' => 'integer',
     ];
 
     public function contract()

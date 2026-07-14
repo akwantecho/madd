@@ -41,10 +41,6 @@
                     <input type="text" class="form-control form-control-sm" data-bind=".pv-cust-address" value="{{ $customer['address'] }}">
                 </div>
                 <div class="ed-field">
-                    <label>{{ __('VAT Reg. No.') }}</label>
-                    <input type="text" class="form-control form-control-sm" data-bind=".pv-cust-vat" value="{{ $customer['vat'] }}">
-                </div>
-                <div class="ed-field">
                     <label>{{ __('Attn') }}</label>
                     <input type="text" class="form-control form-control-sm" data-bind=".pv-cust-contact" value="{{ $customer['contact'] }}">
                 </div>
@@ -67,18 +63,11 @@
                         <input type="date" class="form-control form-control-sm" data-bind=".pv-due" value="{{ $invoice['due'] }}">
                     </div>
                 </div>
-                <div class="ed-grid-2">
-                    <div class="ed-field">
-                        <label>{{ __('Purchase Order') }}</label>
-                        <input type="text" class="form-control form-control-sm" data-bind=".pv-po" value="{{ $invoice['po'] }}">
-                    </div>
-                    <div class="ed-field">
-                        <label>{{ __('Currency') }}</label>
-                        <select class="form-select form-select-sm" id="edCurrency">
-                            <option value="ر.س" @selected($invoice['currency'] === 'ر.س')>SAR {{ __('SAR') }}</option>
-                            <option value="ر.ع" @selected($invoice['currency'] === 'ر.ع')>OMR {{ __('OMR') }}</option>
-                        </select>
-                    </div>
+                <div class="ed-field">
+                    <label>{{ __('Currency') }}</label>
+                    <select class="form-select form-select-sm" id="edCurrency">
+                        <option value="ر.ع" selected>{{ __('Omani Rial') }} ر.ع</option>
+                    </select>
                 </div>
             </div>
 
@@ -92,15 +81,9 @@
             {{-- Adjustments --}}
             <div class="doc-card">
                 <h3 class="doc-card-title"><i class="bi bi-sliders"></i>{{ __('Adjustments') }}</h3>
-                <div class="ed-grid-2">
-                    <div class="ed-field">
-                        <label>{{ __('Discount') }}</label>
-                        <input type="number" min="0" class="form-control form-control-sm" id="edDiscount" value="{{ $invoice['discount'] }}">
-                    </div>
-                    <div class="ed-field">
-                        <label>{{ __('VAT') }} %</label>
-                        <input type="number" min="0" max="100" class="form-control form-control-sm" id="edVat" value="{{ $invoice['vatRate'] }}">
-                    </div>
+                <div class="ed-field">
+                    <label>{{ __('Discount') }} (%)</label>
+                    <input type="number" min="0" max="100" step="0.01" class="form-control form-control-sm" id="edDiscount">
                 </div>
             </div>
 
@@ -123,11 +106,11 @@
                             <strong>{{ $company['name'] }}</strong>
                             <div>{{ $company['address'] }}</div>
                             <div>{{ $company['country'] }}</div>
-                            <div>{{ __('VAT Reg. No.') }}: {{ $company['vat'] }}</div>
+                            @if (!empty($company['cr']))<div>{{ __('C.R. No.') }}: {{ $company['cr'] }}</div>@endif
                         </div>
                     </div>
                     <div class="dp-title-block">
-                        <h1 class="dp-doctitle">{{ __('Tax Invoice') }}</h1>
+                        <h1 class="dp-doctitle">{{ __('Invoice') }}</h1>
                         <div class="dp-doc-no js-number">{{ $invoice['number'] }}</div>
                         <span class="dp-status-pill">{{ __($invoice['status']) }}</span>
                     </div>
@@ -142,14 +125,12 @@
                         <strong class="pv-cust-name">{{ $customer['name'] }}</strong>
                         <div class="pv-cust-address">{{ $customer['address'] }}</div>
                         <div>{{ $customer['country'] }}</div>
-                        <div>{{ __('VAT Reg. No.') }}: <span class="pv-cust-vat">{{ $customer['vat'] }}</span></div>
                         <div>{{ __('Attn') }}: <span class="pv-cust-contact">{{ $customer['contact'] }}</span></div>
                     </div>
                     <div class="dp-info">
                         <div class="dp-info-row"><span>{{ __('Invoice Number') }}</span><span class="js-number">{{ $invoice['number'] }}</span></div>
                         <div class="dp-info-row"><span>{{ __('Issue Date') }}</span><span class="pv-issue">{{ $invoice['date'] }}</span></div>
                         <div class="dp-info-row"><span>{{ __('Due Date') }}</span><span class="pv-due">{{ $invoice['due'] }}</span></div>
-                        <div class="dp-info-row"><span>{{ __('Purchase Order') }}</span><span class="pv-po">{{ $invoice['po'] }}</span></div>
                     </div>
                 </div>
 
@@ -167,12 +148,8 @@
                     <tbody id="pvItems"></tbody>
                 </table>
 
-                {{-- Totals + QR --}}
+                {{-- Totals --}}
                 <div class="dp-bottom">
-                    <div class="dp-qr">
-                        <div class="dp-qr-box"><i class="bi bi-qr-code"></i></div>
-                        <p>{{ __('This QR code is encoded as per ZATCA e-invoicing requirements') }}</p>
-                    </div>
                     <div class="dp-totals" id="pvTotals"></div>
                 </div>
 
@@ -180,9 +157,9 @@
                 <div class="dp-foot">
                     <div class="dp-foot-block">
                         <span class="dp-meta-label">{{ __('Payment Details') }}</span>
-                        <div>{{ __('Bank') }}: Al Rajhi Bank</div>
-                        <div>IBAN: SA44 2000 0001 2345 6789 1234</div>
                         <div>{{ __('Payment Method') }}: {{ __('Bank Transfer') }}</div>
+                        @if (!empty($company['cr']))<div>{{ __('C.R. No.') }}: {{ $company['cr'] }}</div>@endif
+                        <div>{{ $company['phone'] }}</div>
                     </div>
                     <div class="dp-foot-block">
                         <span class="dp-meta-label">{{ __('Notes') }}</span>
@@ -223,14 +200,17 @@
     (function () {
         const cfg = window.invShow;
         const t = cfg.i18n;
+        const fmt = (n) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const pctFmt = (n) => (Math.round(n * 100) / 100).toString();
+        const initItems = cfg.items.map((i) => ({ desc: i.desc || '', qty: +i.qty || 0, price: +i.price || 0 }));
+        const initSubtotal = initItems.reduce((s, it) => s + it.qty * it.price, 0);
         const state = {
-            items: cfg.items.map((i) => ({ desc: i.desc || '', qty: +i.qty || 0, price: +i.price || 0 })),
-            currency: cfg.currency,
-            vatRate: +cfg.vatRate || 0,
-            discount: +cfg.discount || 0,
+            items: initItems,
+            currency: 'ر.ع',
+            // discount is stored as a percentage; derived from the saved amount on load
+            discountPct: initSubtotal > 0 ? ((+cfg.discount || 0) / initSubtotal * 100) : 0,
         };
 
-        const fmt = (n) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         const edItems = document.getElementById('edItems');
         const pvItems = document.getElementById('pvItems');
         const pvTotals = document.getElementById('pvTotals');
@@ -265,15 +245,13 @@
                 </tr>`).join('');
 
             const subtotal = state.items.reduce((s, it) => s + it.qty * it.price, 0);
-            const taxable = Math.max(0, subtotal - state.discount);
-            const vat = taxable * state.vatRate / 100;
-            const total = taxable + vat;
+            const discount = subtotal * state.discountPct / 100;
+            const total = Math.max(0, subtotal - discount);
             const cur = state.currency;
 
             pvTotals.innerHTML = `
                 <div class="dp-tot-row"><span>${t.subtotal}</span><span>${fmt(subtotal)} ${cur}</span></div>
-                <div class="dp-tot-row"><span>${t.discount}</span><span>− ${fmt(state.discount)} ${cur}</span></div>
-                <div class="dp-tot-row"><span>${t.vat} (${state.vatRate}%)</span><span>${fmt(vat)} ${cur}</span></div>
+                ${state.discountPct > 0 ? `<div class="dp-tot-row"><span>${t.discount} (${pctFmt(state.discountPct)}%)</span><span>− ${fmt(discount)} ${cur}</span></div>` : ''}
                 <div class="dp-tot-row grand"><span>${t.total}</span><span>${fmt(total)} ${cur}</span></div>
                 <div class="dp-tot-row"><span>${t.paid}</span><span>${fmt(0)} ${cur}</span></div>
                 <div class="dp-tot-row due"><span>${t.due}</span><span>${fmt(total)} ${cur}</span></div>`;
@@ -310,10 +288,10 @@
             renderEditor(); renderPreview();
         });
 
-        /* ---- Adjustments + currency ---- */
-        document.getElementById('edDiscount').addEventListener('input', (e) => { state.discount = parseFloat(e.target.value) || 0; renderPreview(); });
-        document.getElementById('edVat').addEventListener('input', (e) => { state.vatRate = parseFloat(e.target.value) || 0; renderPreview(); });
-        document.getElementById('edCurrency').addEventListener('change', (e) => { state.currency = e.target.value; renderPreview(); });
+        /* ---- Adjustments (discount as %) ---- */
+        const edDiscount = document.getElementById('edDiscount');
+        edDiscount.value = state.discountPct ? pctFmt(state.discountPct) : '';
+        edDiscount.addEventListener('input', (e) => { state.discountPct = Math.min(100, Math.max(0, parseFloat(e.target.value) || 0)); renderPreview(); });
 
         /* ---- Direct text bindings (customer / meta / notes) ---- */
         document.querySelectorAll('[data-bind]').forEach((inp) => {

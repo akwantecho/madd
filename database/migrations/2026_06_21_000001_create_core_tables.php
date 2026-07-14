@@ -36,7 +36,7 @@ return new class extends Migration
             $table->string('category')->nullable();        // suppliers
             $table->string('vat_no')->nullable();
             $table->string('address')->nullable();
-            $table->string('country')->nullable()->default('المملكة العربية السعودية');
+            $table->string('country')->nullable()->default('سلطنة عُمان');
             $table->foreignId('entity_id')->nullable()->constrained('contacts')->nullOnDelete(); // clients -> entity
             $table->unsignedInteger('persons')->nullable();  // entities
             $table->unsignedInteger('events')->nullable();   // organizers
