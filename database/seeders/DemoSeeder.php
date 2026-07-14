@@ -36,18 +36,18 @@ class DemoSeeder extends Seeder
     private function seedExhibitions(): array
     {
         $data = [
-            ['title' => 'معرض الرياض للكتاب', 'location' => 'الرياض', 'start_date' => '2025-06-10', 'end_date' => '2025-06-20', 'status' => 'Active', 'tag' => 'High demand', 'tag_color' => 'blue'],
-            ['title' => 'تك إكسبو السعودية', 'location' => 'جدة', 'start_date' => '2025-07-01', 'end_date' => '2025-07-05', 'status' => 'Upcoming', 'tag' => 'Featured', 'tag_color' => 'green'],
-            ['title' => 'معرض الأثاث الدولي', 'location' => 'الدمام', 'start_date' => '2025-05-15', 'end_date' => '2025-05-22', 'status' => 'Completed', 'tag' => 'Sold out', 'tag_color' => 'gray'],
-            ['title' => 'بينالي الفنون', 'location' => 'الرياض', 'start_date' => '2025-08-12', 'end_date' => '2025-08-30', 'status' => 'Upcoming', 'tag' => 'Featured', 'tag_color' => 'green'],
-            ['title' => 'معرض السيارات', 'location' => 'جدة', 'start_date' => '2025-06-05', 'end_date' => '2025-06-09', 'status' => 'Active', 'tag' => 'High demand', 'tag_color' => 'blue'],
-            ['title' => 'إكسبو العقار', 'location' => 'الرياض', 'start_date' => '2025-04-01', 'end_date' => '2025-04-04', 'status' => 'Cancelled', 'tag' => 'Needs review', 'tag_color' => 'red'],
+            ['title' => 'معرض مسقط للكتاب', 'location' => 'مسقط', 'start_date' => '2025-06-10', 'end_date' => '2025-06-20', 'status' => 'Active', 'tag' => 'High demand', 'tag_color' => 'blue'],
+            ['title' => 'تك إكسبو عُمان', 'location' => 'صلالة', 'start_date' => '2025-07-01', 'end_date' => '2025-07-05', 'status' => 'Upcoming', 'tag' => 'Featured', 'tag_color' => 'green'],
+            ['title' => 'معرض الأثاث الدولي', 'location' => 'صحار', 'start_date' => '2025-05-15', 'end_date' => '2025-05-22', 'status' => 'Completed', 'tag' => 'Sold out', 'tag_color' => 'gray'],
+            ['title' => 'بينالي الفنون', 'location' => 'مسقط', 'start_date' => '2025-08-12', 'end_date' => '2025-08-30', 'status' => 'Upcoming', 'tag' => 'Featured', 'tag_color' => 'green'],
+            ['title' => 'معرض السيارات', 'location' => 'صلالة', 'start_date' => '2025-06-05', 'end_date' => '2025-06-09', 'status' => 'Active', 'tag' => 'High demand', 'tag_color' => 'blue'],
+            ['title' => 'إكسبو العقار', 'location' => 'مسقط', 'start_date' => '2025-04-01', 'end_date' => '2025-04-04', 'status' => 'Cancelled', 'tag' => 'Needs review', 'tag_color' => 'red'],
             ['title' => 'معرض الأغذية والمشروبات', 'location' => 'الخبر', 'start_date' => '2025-09-10', 'end_date' => '2025-09-14', 'status' => 'Upcoming', 'tag' => 'New', 'tag_color' => 'amber'],
-            ['title' => 'ملتقى ريادة الأعمال', 'location' => 'الرياض', 'start_date' => '2025-05-28', 'end_date' => '2025-05-30', 'status' => 'Completed', 'tag' => 'Sold out', 'tag_color' => 'gray'],
-            ['title' => 'معرض الصحة العالمي', 'location' => 'جدة', 'start_date' => '2025-06-18', 'end_date' => '2025-06-25', 'status' => 'Active', 'tag' => 'High demand', 'tag_color' => 'blue'],
+            ['title' => 'ملتقى ريادة الأعمال', 'location' => 'مسقط', 'start_date' => '2025-05-28', 'end_date' => '2025-05-30', 'status' => 'Completed', 'tag' => 'Sold out', 'tag_color' => 'gray'],
+            ['title' => 'معرض الصحة العالمي', 'location' => 'صلالة', 'start_date' => '2025-06-18', 'end_date' => '2025-06-25', 'status' => 'Active', 'tag' => 'High demand', 'tag_color' => 'blue'],
             ['title' => 'معرض التعليم الدولي', 'location' => 'مكة', 'start_date' => '2025-10-01', 'end_date' => '2025-10-06', 'status' => 'Upcoming', 'tag' => 'New', 'tag_color' => 'amber'],
             ['title' => 'معرض السياحة', 'location' => 'العلا', 'start_date' => '2025-03-12', 'end_date' => '2025-03-18', 'status' => 'Completed', 'tag' => 'Sold out', 'tag_color' => 'gray'],
-            ['title' => 'معرض التقنية المالية', 'location' => 'الرياض', 'start_date' => '2025-11-02', 'end_date' => '2025-11-05', 'status' => 'Upcoming', 'tag' => 'Featured', 'tag_color' => 'green'],
+            ['title' => 'معرض التقنية المالية', 'location' => 'مسقط', 'start_date' => '2025-11-02', 'end_date' => '2025-11-05', 'status' => 'Upcoming', 'tag' => 'Featured', 'tag_color' => 'green'],
         ];
 
         $out = [];
@@ -62,7 +62,7 @@ class DemoSeeder extends Seeder
     {
         $entities = [
             ['name' => 'هيئة المعارض', 'phone' => '0112233445', 'email' => 'info@expo.gov.sa', 'representative' => 'م. فهد', 'persons' => 5, 'status' => 'Active'],
-            ['name' => 'غرفة الرياض', 'phone' => '0114455667', 'email' => 'contact@riyadhchamber.sa', 'representative' => 'أ. نورة', 'persons' => 3, 'status' => 'Active'],
+            ['name' => 'غرفة مسقط', 'phone' => '0114455667', 'email' => 'contact@riyadhchamber.sa', 'representative' => 'أ. نورة', 'persons' => 3, 'status' => 'Active'],
             ['name' => 'مركز المؤتمرات', 'phone' => '0126677889', 'email' => 'hello@conv.sa', 'representative' => 'أ. سعد', 'persons' => 2, 'status' => 'Upcoming'],
         ];
         $entityModels = [];
@@ -71,9 +71,9 @@ class DemoSeeder extends Seeder
         }
 
         $clients = [
-            ['name' => 'شركة الواحة التجارية', 'phone' => '0551234567', 'email' => 'info@alwaha.sa', 'entity_id' => $entityModels[0]->id, 'representative' => 'أ. نورة العتيبي', 'vat_no' => '31099887700003', 'address' => 'طريق الملك فهد، حي العليا، الرياض', 'status' => 'Active'],
-            ['name' => 'مؤسسة النخبة', 'phone' => '0507654321', 'email' => 'sales@nukhba.com', 'entity_id' => $entityModels[1]->id, 'representative' => 'أ. سعد القحطاني', 'vat_no' => '30088776600002', 'address' => 'شارع التحلية، جدة', 'status' => 'Active'],
-            ['name' => 'Global Events Co.', 'phone' => '0561112233', 'email' => 'contact@globalevents.com', 'entity_id' => $entityModels[2]->id, 'representative' => 'M. Adam', 'vat_no' => '31077665500001', 'address' => 'King Abdullah Rd, Riyadh', 'status' => 'Active'],
+            ['name' => 'شركة الواحة التجارية', 'phone' => '0551234567', 'email' => 'info@alwaha.sa', 'entity_id' => $entityModels[0]->id, 'representative' => 'أ. نورة العتيبي', 'vat_no' => '31099887700003', 'address' => 'طريق الملك فهد، حي العليا، مسقط', 'status' => 'Active'],
+            ['name' => 'مؤسسة النخبة', 'phone' => '0507654321', 'email' => 'sales@nukhba.com', 'entity_id' => $entityModels[1]->id, 'representative' => 'أ. سعد القحطاني', 'vat_no' => '30088776600002', 'address' => 'شارع التحلية، صلالة', 'status' => 'Active'],
+            ['name' => 'Global Events Co.', 'phone' => '0561112233', 'email' => 'contact@globalevents.com', 'entity_id' => $entityModels[2]->id, 'representative' => 'M. Adam', 'vat_no' => '31077665500001', 'address' => 'King Abdullah Rd, Muscat', 'status' => 'Active'],
         ];
         $clientModels = [];
         foreach ($clients as $c) {
@@ -141,8 +141,8 @@ class DemoSeeder extends Seeder
     {
         $byTitle = collect($exhibitions)->keyBy('title');
         $tasks = [
-            ['title' => 'تجهيز جناح العميل A', 'exhibition' => 'معرض الرياض للكتاب', 'assignee' => 'خالد', 'due_date' => '2025-06-12', 'priority' => 'High', 'status' => 'Active'],
-            ['title' => 'تأكيد عقد التوريد', 'exhibition' => 'تك إكسبو السعودية', 'assignee' => 'سارة', 'due_date' => '2025-06-15', 'priority' => 'Medium', 'status' => 'Upcoming'],
+            ['title' => 'تجهيز جناح العميل A', 'exhibition' => 'معرض مسقط للكتاب', 'assignee' => 'خالد', 'due_date' => '2025-06-12', 'priority' => 'High', 'status' => 'Active'],
+            ['title' => 'تأكيد عقد التوريد', 'exhibition' => 'تك إكسبو عُمان', 'assignee' => 'سارة', 'due_date' => '2025-06-15', 'priority' => 'Medium', 'status' => 'Upcoming'],
             ['title' => 'استلام الأجهزة من المورد', 'exhibition' => 'معرض الأثاث الدولي', 'assignee' => 'أحمد', 'due_date' => '2025-05-20', 'priority' => 'High', 'status' => 'Completed'],
             ['title' => 'إصدار فاتورة الخدمات', 'exhibition' => 'بينالي الفنون', 'assignee' => 'منى', 'due_date' => '2025-06-18', 'priority' => 'Low', 'status' => 'Upcoming'],
             ['title' => 'مراجعة مصروفات التشغيل', 'exhibition' => 'معرض السيارات', 'assignee' => 'خالد', 'due_date' => '2025-06-09', 'priority' => 'Medium', 'status' => 'Active'],
@@ -166,7 +166,7 @@ class DemoSeeder extends Seeder
 
         $contracts = [
             [
-                'number' => 'CT-2051', 'client' => 'شركة الواحة التجارية', 'exhibition' => 'معرض الرياض للكتاب',
+                'number' => 'CT-2051', 'client' => 'شركة الواحة التجارية', 'exhibition' => 'معرض مسقط للكتاب',
                 'type' => 'عقد خدمات', 'start_date' => '2025-06-01', 'end_date' => '2025-08-31', 'status' => 'Active',
                 'items' => [
                     ['description' => 'تجهيز وتأجير جناح العميل', 'qty' => 1, 'price' => 80000],
@@ -185,7 +185,7 @@ class DemoSeeder extends Seeder
                 ],
             ],
             [
-                'number' => 'CT-2050', 'client' => 'Global Events Co.', 'exhibition' => 'تك إكسبو السعودية',
+                'number' => 'CT-2050', 'client' => 'Global Events Co.', 'exhibition' => 'تك إكسبو عُمان',
                 'type' => 'عقد رعاية', 'start_date' => '2025-04-22', 'end_date' => '2025-07-05', 'status' => 'Upcoming',
                 'items' => [
                     ['description' => 'رعاية ماسية', 'qty' => 1, 'price' => 150000],
@@ -221,11 +221,11 @@ class DemoSeeder extends Seeder
                 'client_id' => $clients->get($row['client'])?->id,
                 'exhibition_id' => $exh->get($row['exhibition'])?->id,
                 'type' => $row['type'],
-                'currency' => 'ر.س',
+                'currency' => 'ر.ع',
                 'start_date' => $row['start_date'],
                 'end_date' => $row['end_date'],
                 'status' => $row['status'],
-                'vat_rate' => 15,
+                'vat_rate' => 5,
             ]);
 
             foreach ($row['items'] as $i => $item) {
@@ -277,11 +277,11 @@ class DemoSeeder extends Seeder
                 'number' => $row['number'],
                 'client_id' => $clients->get($row['client'])?->id,
                 'contract_id' => $contracts[$row['contract']] ?? null,
-                'currency' => 'ر.س',
+                'currency' => 'ر.ع',
                 'issue_date' => $row['issue_date'],
                 'due_date' => $row['due_date'],
                 'status' => $row['status'],
-                'vat_rate' => 15,
+                'vat_rate' => 5,
                 'discount' => $row['discount'],
                 'paid' => $row['paid'],
                 'po' => $row['po'],

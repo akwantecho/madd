@@ -80,7 +80,7 @@
                     <div class="ed-field">
                         <label>{{ __('Currency') }}</label>
                         <select class="form-select form-select-sm" id="edCurrency">
-                            <option value="ر.س" @selected($contract['currency'] === 'ر.س')>SAR {{ __('SAR') }}</option>
+                            <option value="ر.ع" @selected($contract['currency'] === 'ر.ع')>OMR {{ __('OMR') }}</option>
                             <option value="ر.ع" @selected($contract['currency'] === 'ر.ع')>OMR {{ __('OMR') }}</option>
                         </select>
                     </div>

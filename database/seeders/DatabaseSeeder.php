@@ -23,10 +23,10 @@ class DatabaseSeeder extends Seeder
 
         foreach ([
             'system_name' => 'Event Puls',
-            'default_currency' => 'SAR',
-            'vat_rate' => '15',
+            'default_currency' => 'OMR',
+            'vat_rate' => '5',
             'invoice_prefix' => 'INV-',
-            'timezone' => 'Asia/Riyadh',
+            'timezone' => 'Asia/Muscat',
         ] as $key => $value) {
             Setting::put($key, $value);
         }

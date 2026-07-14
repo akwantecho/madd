@@ -50,7 +50,7 @@ class Contract extends Model
     /** Net of items, before VAT. */
     public function getSubtotalAttribute(): float
     {
-        return (float) $this->items->sum(fn ($i) => $i->qty * $i->price);
+        return (float) $this->items->sum(fn ($i) => $i->qty * $i->price * max(1, (int) $i->days));
     }
 
     public function getVatAttribute(): float
