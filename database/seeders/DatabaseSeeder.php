@@ -2,24 +2,33 @@
 
 namespace Database\Seeders;
 
+use App\Models\Setting;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
+/**
+ * Essential data for a fresh, usable system — the admin account and
+ * default settings only. No business/demo records.
+ *
+ * For sample data run: php artisan db:seed --class=DemoSeeder
+ */
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // User::factory(10)->create();
+        User::query()->firstOrCreate(
+            ['email' => 'admin@eventpuls.sa'],
+            ['name' => 'Admin', 'password' => bcrypt('password')],
+        );
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        foreach ([
+            'system_name' => 'Event Puls',
+            'default_currency' => 'SAR',
+            'vat_rate' => '15',
+            'invoice_prefix' => 'INV-',
+            'timezone' => 'Asia/Riyadh',
+        ] as $key => $value) {
+            Setting::put($key, $value);
+        }
     }
 }

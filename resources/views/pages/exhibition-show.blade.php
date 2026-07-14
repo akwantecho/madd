@@ -2,7 +2,7 @@
 @section('title', $exhibition['title'])
 
 @section('content')
-    <div class="page-head">
+    <div class="page-head head-bar full-bleed sheet-aligned" style="align-items:flex-start;">
         <div>
             <a href="{{ route('exhibitions') }}" class="section-link"><i class="bi bi-arrow-{{ app()->getLocale() === 'ar' ? 'right' : 'left' }}-short"></i> {{ __('Exhibitions') }}</a>
             <h1 class="mt-1">{{ $exhibition['title'] }}</h1>
@@ -18,81 +18,74 @@
         <button class="btn-brand"><i class="bi bi-pencil"></i>{{ __('Edit') }}</button>
     </div>
 
-    <div class="tabs">
-        @foreach ($tabs as $key => $tab)
-            <a href="{{ route('exhibitions.show', [$exhibition['id'], 'tab' => $key]) }}"
-               class="tab {{ $active === $key ? 'active' : '' }}">
-                <i class="bi {{ $tab['icon'] }}"></i>{{ __($tab['label']) }}
-            </a>
-        @endforeach
+    <div class="toolbar full-bleed sheet-aligned" style="padding-block:0;">
+        <div class="tabs" style="border:0; margin:0;">
+            @foreach ($tabs as $key => $tab)
+                <a href="{{ route('exhibitions.show', [$exhibition['id'], 'tab' => $key]) }}"
+                   class="tab {{ $active === $key ? 'active' : '' }}">
+                    <i class="bi {{ $tab['icon'] }}"></i>{{ __($tab['label']) }}
+                </a>
+            @endforeach
+        </div>
     </div>
 
     @if ($active === 'summary')
-        <div class="kpi-grid">
-            @foreach ($summary as $s)
-                <div class="kpi-card">
-                    <div class="kpi-top">
-                        <span class="kpi-icon {{ $s['color'] }}"><i class="bi {{ $s['icon'] }}"></i></span>
-                    </div>
-                    <div class="k-value">{{ $s['value'] }}</div>
-                    <div class="k-label">{{ __($s['key']) }}</div>
-                </div>
-            @endforeach
-        </div>
+        <div class="full-bleed sheet-aligned" style="padding-block:16px;">
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-head"><h2>{{ __('Exhibition Details') }}</h2></div>
+                    <div class="card-body">
+                        <ul class="info-list">
+                            <li><span class="k">{{ __('Title') }}</span><span class="v">{{ $exhibition['title'] }}</span></li>
+                            <li><span class="k">{{ __('Location') }}</span><span class="v">{{ $exhibition['location'] }}</span></li>
+                            <li><span class="k">{{ __('Start Date') }}</span><span class="v">{{ $exhibition['start'] }}</span></li>
+                            <li><span class="k">{{ __('End Date') }}</span><span class="v">{{ $exhibition['end'] }}</span></li>
+                            <li><span class="k">{{ __('Status') }}</span><span class="v">{{ __($exhibition['status']) }}</span></li>
+                        </ul>
 
-        <div class="grid-2">
-            <div class="card">
-                <div class="card-head"><h2>{{ __('Exhibition Details') }}</h2></div>
-                <div class="card-body">
-                    <ul class="info-list">
-                        <li><span class="k">{{ __('Title') }}</span><span class="v">{{ $exhibition['title'] }}</span></li>
-                        <li><span class="k">{{ __('Location') }}</span><span class="v">{{ $exhibition['location'] }}</span></li>
-                        <li><span class="k">{{ __('Start Date') }}</span><span class="v">{{ $exhibition['start'] }}</span></li>
-                        <li><span class="k">{{ __('End Date') }}</span><span class="v">{{ $exhibition['end'] }}</span></li>
-                        <li><span class="k">{{ __('Status') }}</span><span class="v">{{ __($exhibition['status']) }}</span></li>
-                    </ul>
-
-                    @php
-                        $taskList = collect($tasks);
-                        $done = $taskList->where('status', 'Completed')->count();
-                        $totalTasks = max($taskList->count(), 1);
-                        $pct = (int) round($done / $totalTasks * 100);
-                    @endphp
-                    <div class="mt-3">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="form-label mb-0">{{ __('Tasks Progress') }}</span>
-                            <span class="cell-muted" style="font-size:12px;">{{ $done }} / {{ $taskList->count() }}</span>
+                        @php
+                            $taskList = collect($tasks);
+                            $done = $taskList->where('status', 'Completed')->count();
+                            $totalTasks = max($taskList->count(), 1);
+                            $pct = (int) round($done / $totalTasks * 100);
+                        @endphp
+                        <div class="mt-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="form-label mb-0">{{ __('Tasks Progress') }}</span>
+                                <span class="cell-muted" style="font-size:12px;">{{ $done }} / {{ $taskList->count() }}</span>
+                            </div>
+                            <div class="progress-mini"><span style="width: {{ $pct }}%"></span></div>
                         </div>
-                        <div class="progress-mini"><span style="width: {{ $pct }}%"></span></div>
                     </div>
                 </div>
-            </div>
-            <div class="card">
-                <div class="card-head"><h2>{{ __('Recent Activity') }}</h2></div>
-                <div class="card-body">
-                    <ul class="activity">
-                        <li><span class="act-icon primary"><i class="bi bi-box-seam"></i></span><div><div class="act-text">تم تخصيص 6 شاشات للجناح</div><div class="act-time">قبل ساعة</div></div></li>
-                        <li><span class="act-icon success"><i class="bi bi-check2"></i></span><div><div class="act-text">اكتمل استلام الموقع</div><div class="act-time">قبل 4 ساعات</div></div></li>
-                        <li><span class="act-icon info"><i class="bi bi-file-earmark"></i></span><div><div class="act-text">تم رفع مخطط الجناح</div><div class="act-time">أمس</div></div></li>
-                    </ul>
+                <div class="card">
+                    <div class="card-head"><h2>{{ __('Recent Activity') }}</h2></div>
+                    <div class="card-body">
+                        <ul class="activity">
+                            <li><span class="act-icon primary"><i class="bi bi-box-seam"></i></span><div><div class="act-text">تم تخصيص 6 شاشات للجناح</div><div class="act-time">قبل ساعة</div></div></li>
+                            <li><span class="act-icon success"><i class="bi bi-check2"></i></span><div><div class="act-text">اكتمل استلام الموقع</div><div class="act-time">قبل 4 ساعات</div></div></li>
+                            <li><span class="act-icon info"><i class="bi bi-file-earmark"></i></span><div><div class="act-text">تم رفع مخطط الجناح</div><div class="act-time">أمس</div></div></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
     @endif
 
     @if ($active === 'documents')
-        <div class="card">
-            <div class="card-head">
-                <h2>{{ __('Documents') }}</h2>
-                <button class="btn-brand"><i class="bi bi-upload"></i>{{ __('Upload') }}</button>
-            </div>
-            <div class="card-body p-0">
+        <div class="toolbar full-bleed sheet-aligned">
+            <strong>{{ __('Documents') }}</strong>
+            <button class="btn-brand"><i class="bi bi-upload"></i>{{ __('Upload') }}</button>
+        </div>
+        <div class="full-bleed">
+            <div class="sheet-frame">
                 <div class="table-wrap">
-                    <table class="data">
-                        <thead><tr><th>{{ __('Title') }}</th><th>{{ __('Type') }}</th><th>{{ __('Size') }}</th><th>{{ __('Date') }}</th><th>{{ __('Actions') }}</th></tr></thead>
+                    <table class="data sheet">
+                        <thead><tr><th style="width:46px">#</th><th>{{ __('Title') }}</th><th>{{ __('Type') }}</th><th>{{ __('Size') }}</th><th>{{ __('Date') }}</th><th style="width:90px">{{ __('Actions') }}</th></tr></thead>
                         <tbody>
                         @foreach ($documents as $d)
                             <tr>
+                                <td class="cell-muted">{{ $loop->iteration }}</td>
                                 <td class="cell-strong"><i class="bi bi-file-earmark-text me-1"></i>{{ $d['title'] }}</td>
                                 <td class="cell-muted">{{ $d['type'] }}</td>
                                 <td class="cell-muted">{{ $d['size'] }}</td>
@@ -108,15 +101,19 @@
     @endif
 
     @if ($active === 'stock')
-        <div class="card">
-            <div class="card-head"><h2>{{ __('Stock') }}</h2><button class="btn-brand"><i class="bi bi-plus-lg"></i>{{ __('Assign Item') }}</button></div>
-            <div class="card-body p-0">
+        <div class="toolbar full-bleed sheet-aligned">
+            <strong>{{ __('Stock') }}</strong>
+            <button class="btn-brand"><i class="bi bi-plus-lg"></i>{{ __('Assign Item') }}</button>
+        </div>
+        <div class="full-bleed">
+            <div class="sheet-frame">
                 <div class="table-wrap">
-                    <table class="data">
-                        <thead><tr><th>{{ __('Name') }}</th><th>{{ __('Category') }}</th><th>{{ __('Quantity') }}</th><th>{{ __('Status') }}</th></tr></thead>
+                    <table class="data sheet">
+                        <thead><tr><th style="width:46px">#</th><th>{{ __('Name') }}</th><th>{{ __('Category') }}</th><th>{{ __('Quantity') }}</th><th>{{ __('Status') }}</th></tr></thead>
                         <tbody>
                         @foreach ($stockItems as $i)
                             <tr>
+                                <td class="cell-muted">{{ $loop->iteration }}</td>
                                 <td class="cell-strong">{{ $i['name'] }}</td>
                                 <td class="cell-muted">{{ $i['category'] }}</td>
                                 <td class="cell-muted">{{ $i['qty'] }}</td>
@@ -131,15 +128,19 @@
     @endif
 
     @if ($active === 'expenses')
-        <div class="card">
-            <div class="card-head"><h2>{{ __('Expenses') }}</h2><button class="btn-brand"><i class="bi bi-plus-lg"></i>{{ __('Add Expense') }}</button></div>
-            <div class="card-body p-0">
+        <div class="toolbar full-bleed sheet-aligned">
+            <strong>{{ __('Expenses') }}</strong>
+            <button class="btn-brand"><i class="bi bi-plus-lg"></i>{{ __('Add Expense') }}</button>
+        </div>
+        <div class="full-bleed">
+            <div class="sheet-frame">
                 <div class="table-wrap">
-                    <table class="data">
-                        <thead><tr><th>{{ __('Item') }}</th><th>{{ __('Vendor') }}</th><th>{{ __('Amount') }}</th><th>{{ __('Date') }}</th></tr></thead>
+                    <table class="data sheet">
+                        <thead><tr><th style="width:46px">#</th><th>{{ __('Item') }}</th><th>{{ __('Vendor') }}</th><th>{{ __('Amount') }}</th><th>{{ __('Date') }}</th></tr></thead>
                         <tbody>
                         @foreach ($expenses as $e)
                             <tr>
+                                <td class="cell-muted">{{ $loop->iteration }}</td>
                                 <td class="cell-strong">{{ $e['item'] }}</td>
                                 <td class="cell-muted">{{ $e['vendor'] }}</td>
                                 <td class="cell-strong">{{ $e['amount'] }}</td>
@@ -154,15 +155,19 @@
     @endif
 
     @if ($active === 'setup')
-        <div class="card">
-            <div class="card-head"><h2>{{ __('Setup') }}</h2><button class="btn-brand"><i class="bi bi-plus-lg"></i>{{ __('Add Step') }}</button></div>
-            <div class="card-body p-0">
+        <div class="toolbar full-bleed sheet-aligned">
+            <strong>{{ __('Setup') }}</strong>
+            <button class="btn-brand"><i class="bi bi-plus-lg"></i>{{ __('Add Step') }}</button>
+        </div>
+        <div class="full-bleed">
+            <div class="sheet-frame">
                 <div class="table-wrap">
-                    <table class="data">
-                        <thead><tr><th>{{ __('Step') }}</th><th>{{ __('Owner') }}</th><th>{{ __('Date') }}</th><th>{{ __('Status') }}</th></tr></thead>
+                    <table class="data sheet">
+                        <thead><tr><th style="width:46px">#</th><th>{{ __('Step') }}</th><th>{{ __('Owner') }}</th><th>{{ __('Date') }}</th><th>{{ __('Status') }}</th></tr></thead>
                         <tbody>
                         @foreach ($setup as $s)
                             <tr>
+                                <td class="cell-muted">{{ $loop->iteration }}</td>
                                 <td class="cell-strong">{{ $s['step'] }}</td>
                                 <td class="cell-muted">{{ $s['owner'] }}</td>
                                 <td class="cell-muted">{{ $s['date'] }}</td>
@@ -177,15 +182,19 @@
     @endif
 
     @if ($active === 'tasks')
-        <div class="card">
-            <div class="card-head"><h2>{{ __('Tasks') }}</h2><button class="btn-brand"><i class="bi bi-plus-lg"></i>{{ __('Add Task') }}</button></div>
-            <div class="card-body p-0">
+        <div class="toolbar full-bleed sheet-aligned">
+            <strong>{{ __('Tasks') }}</strong>
+            <button class="btn-brand"><i class="bi bi-plus-lg"></i>{{ __('Add Task') }}</button>
+        </div>
+        <div class="full-bleed">
+            <div class="sheet-frame">
                 <div class="table-wrap">
-                    <table class="data">
-                        <thead><tr><th>{{ __('Task') }}</th><th>{{ __('Assignee') }}</th><th>{{ __('Due Date') }}</th><th>{{ __('Priority') }}</th><th>{{ __('Status') }}</th></tr></thead>
+                    <table class="data sheet">
+                        <thead><tr><th style="width:46px">#</th><th>{{ __('Task') }}</th><th>{{ __('Assignee') }}</th><th>{{ __('Due Date') }}</th><th>{{ __('Priority') }}</th><th>{{ __('Status') }}</th></tr></thead>
                         <tbody>
                         @foreach ($tasks as $t)
                             <tr>
+                                <td class="cell-muted">{{ $loop->iteration }}</td>
                                 <td class="cell-strong">{{ $t['title'] }}</td>
                                 <td class="cell-muted">{{ $t['assignee'] }}</td>
                                 <td class="cell-muted">{{ $t['due'] }}</td>

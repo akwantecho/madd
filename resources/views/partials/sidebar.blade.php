@@ -13,13 +13,25 @@
 ?>
 <aside class="sidebar">
     <div class="sidebar-brand">
-        <span class="brand-mark"><i class="bi bi-broadcast-pin"></i></span>
-        <span class="brand-text">{{ __('Event Puls') }}</span>
+        <img src="{{ asset('images/logo.svg') }}" alt="{{ __('Event Puls') }}" class="brand-logo">
+        <i class="bi bi-chevron-double-{{ app()->getLocale() === 'ar' ? 'left' : 'right' }} brand-collapse"></i>
+    </div>
+
+    <div class="sidebar-user">
+        <div class="user-chip">
+            <span class="avatar">SA</span>
+            <div class="user-meta">
+                <strong>Admin</strong>
+                <small>{{ Auth::user()->email ?? 'admin@eventpuls.sa' }}</small>
+            </div>
+            <i class="bi bi-chevron-expand"></i>
+        </div>
     </div>
 
     <div class="sidebar-search">
         <i class="bi bi-search"></i>
         <input type="text" placeholder="{{ __('Search...') }}">
+        <kbd class="search-kbd">⌘K</kbd>
     </div>
 
     <nav class="sidebar-nav">
@@ -31,15 +43,4 @@
             </a>
         @endforeach
     </nav>
-
-    <div class="sidebar-footer">
-        <div class="user-chip">
-            <span class="avatar">SA</span>
-            <div class="user-meta">
-                <strong>Admin</strong>
-                <small>{{ Auth::user()->email ?? 'admin@eventpuls.sa' }}</small>
-            </div>
-            <i class="bi bi-three-dots"></i>
-        </div>
-    </div>
 </aside>

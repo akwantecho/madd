@@ -5,41 +5,22 @@
     use Illuminate\Support\Carbon;
 
     $items = collect($exhibitions);
-    $stats = [
-        ['key' => 'Total Exhibitions', 'value' => $items->count(),                       'icon' => 'bi-easel2',       'color' => 'brand'],
-        ['key' => 'Active',            'value' => $items->where('status', 'Active')->count(),    'icon' => 'bi-broadcast', 'color' => 'green'],
-        ['key' => 'Upcoming',          'value' => $items->where('status', 'Upcoming')->count(),  'icon' => 'bi-clock',     'color' => 'blue'],
-        ['key' => 'Completed',         'value' => $items->where('status', 'Completed')->count(), 'icon' => 'bi-check-circle', 'color' => 'amber'],
-    ];
     $statusClass = ['Active' => 's-active', 'Upcoming' => 's-upcoming', 'Completed' => 's-completed', 'Cancelled' => 's-cancelled'];
 @endphp
 
 @section('content')
-    <div class="page-head">
+    <div class="page-head head-bar full-bleed sheet-aligned">
         <div>
             <h1>{{ __('Exhibitions') }}</h1>
             <p class="subtitle">{{ $items->count() }} {{ __('Exhibitions') }}</p>
         </div>
-        <button class="btn-brand" data-bs-toggle="modal" data-bs-target="#addExhibitionModal">
+        <button class="btn-brand" id="addExhibitionBtn">
             <i class="bi bi-plus-lg"></i>{{ __('Add Exhibition') }}
         </button>
     </div>
 
-    {{-- Summary --}}
-    <div class="kpi-grid">
-        @foreach ($stats as $s)
-            <div class="kpi-card">
-                <div class="kpi-top">
-                    <span class="kpi-icon {{ $s['color'] }}"><i class="bi {{ $s['icon'] }}"></i></span>
-                </div>
-                <div class="k-value">{{ $s['value'] }}</div>
-                <div class="k-label">{{ __($s['key']) }}</div>
-            </div>
-        @endforeach
-    </div>
-
     {{-- Toolbar: search + filters on one side, table/cards switch on the other --}}
-    <div class="toolbar">
+    <div class="toolbar full-bleed sheet-aligned">
         <div class="toolbar-start">
             <label class="search-input">
                 <i class="bi bi-search"></i>
@@ -55,45 +36,53 @@
     </div>
 
     {{-- Table view --}}
-    <div class="card" id="exTableView">
-        <div class="card-body p-0">
+    <div id="exTableView" class="full-bleed">
+        <div class="sheet-frame">
             <div class="table-wrap">
-                <table class="data">
+                <table class="data sheet">
                     <thead>
                     <tr>
-                        <th style="width:36px"><input type="checkbox" class="checkbox"></th>
+                        <th style="width:34px"><input type="checkbox" class="checkbox"></th>
+                        <th style="width:46px">#</th>
                         <th>{{ __('Title') }} <i class="bi bi-arrow-down-up"></i></th>
                         <th>{{ __('Location') }}</th>
                         <th>{{ __('Start Date') }} <i class="bi bi-arrow-down-up"></i></th>
                         <th>{{ __('End Date') }}</th>
+                        <th>{{ __('Duration') }}</th>
+                        <th>{{ __('Tag') }}</th>
                         <th>{{ __('Status') }}</th>
-                        <th>{{ __('Actions') }}</th>
+                        <th style="width:120px">{{ __('Actions') }}</th>
                     </tr>
                     </thead>
                     <tbody>
                     @foreach ($exhibitions as $ex)
-                        <tr data-title="{{ $ex['title'] }} {{ $ex['location'] }}">
+                        @php $days = Carbon::parse($ex['start'])->diffInDays(Carbon::parse($ex['end'])) + 1; @endphp
+                        <tr data-title="{{ $ex['title'] }} {{ $ex['location'] }}" data-exhibition="{{ json_encode($ex, JSON_UNESCAPED_UNICODE) }}">
                             <td><input type="checkbox" class="checkbox"></td>
+                            <td class="cell-muted">{{ $loop->iteration }}</td>
                             <td>
-                                <a href="{{ route('exhibitions.show', $loop->iteration) }}" class="user-cell">
-                                    <span class="avatar sm">{{ mb_substr($ex['title'], 0, 1) }}</span>
-                                    <span>
-                                        <span class="cell-strong d-block">{{ $ex['title'] }}</span>
-                                        @if (!empty($ex['tag']))
-                                            <span class="badge-soft {{ $ex['tagColor'] ?? 'gray' }}">{{ __($ex['tag']) }}</span>
-                                        @endif
-                                    </span>
-                                </a>
+                                <a href="{{ route('exhibitions.show', $ex['id']) }}" class="cell-strong">{{ $ex['title'] }}</a>
                             </td>
                             <td class="cell-muted"><i class="bi bi-geo-alt me-1"></i>{{ $ex['location'] }}</td>
                             <td class="cell-muted">{{ $ex['start'] }}</td>
                             <td class="cell-muted">{{ $ex['end'] }}</td>
+                            <td class="cell-muted">{{ $days }} {{ __('days') }}</td>
+                            <td>
+                                @if (!empty($ex['tag']))
+                                    <span class="badge-soft {{ $ex['tagColor'] ?? 'gray' }}">{{ __($ex['tag']) }}</span>
+                                @else
+                                    <span class="cell-muted">—</span>
+                                @endif
+                            </td>
                             <td>@include('partials.status', ['status' => $ex['status']])</td>
                             <td>
                                 <div class="row-actions">
-                                    <a href="{{ route('exhibitions.show', $loop->iteration) }}" title="{{ __('View') }}"><i class="bi bi-eye"></i></a>
-                                    <a href="#" title="{{ __('Edit') }}"><i class="bi bi-pencil"></i></a>
-                                    <button class="danger" title="{{ __('Delete') }}"><i class="bi bi-trash3"></i></button>
+                                    <a href="{{ route('exhibitions.show', $ex['id']) }}" title="{{ __('View') }}"><i class="bi bi-eye"></i></a>
+                                    <button type="button" class="edit-exhibition" title="{{ __('Edit') }}"><i class="bi bi-pencil"></i></button>
+                                    <form method="POST" action="{{ route('exhibitions.destroy', $ex['id']) }}" onsubmit="return confirm('{{ __('Delete this record?') }}')" style="display:inline">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="danger" title="{{ __('Delete') }}"><i class="bi bi-trash3"></i></button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>
@@ -117,7 +106,7 @@
     <div class="ex-grid is-hidden" id="exCardsView">
         @foreach ($exhibitions as $ex)
             @php $days = Carbon::parse($ex['start'])->diffInDays(Carbon::parse($ex['end'])) + 1; @endphp
-            <a href="{{ route('exhibitions.show', $loop->iteration) }}" class="ex-card" data-title="{{ $ex['title'] }} {{ $ex['location'] }}">
+            <a href="{{ route('exhibitions.show', $ex['id']) }}" class="ex-card" data-title="{{ $ex['title'] }} {{ $ex['location'] }}">
                 <div class="ex-cover {{ $statusClass[$ex['status']] ?? '' }}">
                     <span class="ex-letter">{{ mb_substr($ex['title'], 0, 1) }}</span>
                     @if (!empty($ex['tag']))
@@ -143,47 +132,68 @@
         {{ __('No exhibitions match your search') }}
     </div>
 
-    {{-- Add Exhibition modal (UI only) --}}
-    <div class="modal fade" id="addExhibitionModal" tabindex="-1" aria-hidden="true">
+    {{-- Add / Edit Exhibition modal --}}
+    <div class="modal fade" id="exhibitionModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="border:1px solid var(--line); border-radius: var(--radius);">
-                <div class="modal-header">
-                    <h5 class="modal-title" style="font-size:16px; font-weight:700;">{{ __('New Exhibition') }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">{{ __('Title') }}</label>
-                        <input type="text" class="form-control w-100" placeholder="{{ __('Title') }}">
+            <div class="modal-content" style="border:1px solid var(--line); border-radius:16px;">
+                <form method="POST" id="exhibitionForm" action="{{ route('exhibitions.store') }}">
+                    @csrf
+                    <input type="hidden" name="_method" id="exMethod" value="POST">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exModalTitle" style="font-size:16px; font-weight:700;">{{ __('New Exhibition') }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">{{ __('Location') }}</label>
-                        <input type="text" class="form-control w-100" placeholder="{{ __('Location') }}">
-                    </div>
-                    <div class="row g-3 mb-3">
-                        <div class="col">
-                            <label class="form-label">{{ __('Start Date') }}</label>
-                            <input type="date" class="form-control w-100">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">{{ __('Title') }} <span class="req">*</span></label>
+                            <input type="text" name="title" id="exTitle" class="form-control w-100" required>
                         </div>
-                        <div class="col">
-                            <label class="form-label">{{ __('End Date') }}</label>
-                            <input type="date" class="form-control w-100">
+                        <div class="mb-3">
+                            <label class="form-label">{{ __('Location') }}</label>
+                            <input type="text" name="location" id="exLocation" class="form-control w-100">
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col">
+                                <label class="form-label">{{ __('Start Date') }}</label>
+                                <input type="date" name="start_date" id="exStart" class="form-control w-100">
+                            </div>
+                            <div class="col">
+                                <label class="form-label">{{ __('End Date') }}</label>
+                                <input type="date" name="end_date" id="exEnd" class="form-control w-100">
+                            </div>
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col">
+                                <label class="form-label">{{ __('Tag') }}</label>
+                                <input type="text" name="tag" id="exTag" class="form-control w-100">
+                            </div>
+                            <div class="col">
+                                <label class="form-label">{{ __('Tag') }} {{ __('Color') }}</label>
+                                <select name="tag_color" id="exTagColor" class="form-select w-100">
+                                    <option value="">—</option>
+                                    <option value="blue">{{ __('Blue') }}</option>
+                                    <option value="green">{{ __('Green') }}</option>
+                                    <option value="amber">{{ __('Amber') }}</option>
+                                    <option value="red">{{ __('Red') }}</option>
+                                    <option value="gray">{{ __('Gray') }}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-1">
+                            <label class="form-label">{{ __('Status') }}</label>
+                            <select name="status" id="exStatus" class="form-select w-100">
+                                <option value="Upcoming">{{ __('Upcoming') }}</option>
+                                <option value="Active">{{ __('Active') }}</option>
+                                <option value="Completed">{{ __('Completed') }}</option>
+                                <option value="Cancelled">{{ __('Cancelled') }}</option>
+                            </select>
                         </div>
                     </div>
-                    <div class="mb-1">
-                        <label class="form-label">{{ __('Status') }}</label>
-                        <select class="form-select w-100">
-                            <option>{{ __('Upcoming') }}</option>
-                            <option>{{ __('Active') }}</option>
-                            <option>{{ __('Completed') }}</option>
-                            <option>{{ __('Cancelled') }}</option>
-                        </select>
+                    <div class="modal-footer">
+                        <button type="button" class="page-btn" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                        <button type="submit" class="btn-brand"><i class="bi bi-check-lg"></i>{{ __('Save') }}</button>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="page-btn" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                    <button type="button" class="btn-brand"><i class="bi bi-check-lg"></i>{{ __('Save') }}</button>
-                </div>
+                </form>
             </div>
         </div>
     </div>
@@ -222,6 +232,39 @@
                 if (el.matches('.ex-card') && match) visible++;
             });
             empty.classList.toggle('is-hidden', visible > 0);
+        });
+
+        // Add / Edit exhibition modal
+        const modal = new bootstrap.Modal(document.getElementById('exhibitionModal'));
+        const form = document.getElementById('exhibitionForm');
+        const storeAction = @json(route('exhibitions.store'));
+        const updateBase = @json(url('exhibitions'));
+        const setVal = (id, v) => { document.getElementById(id).value = (v ?? ''); };
+
+        document.getElementById('addExhibitionBtn').addEventListener('click', () => {
+            form.reset();
+            form.action = storeAction;
+            document.getElementById('exMethod').value = 'POST';
+            document.getElementById('exModalTitle').textContent = @json(__('New Exhibition'));
+            modal.show();
+        });
+
+        document.querySelectorAll('.edit-exhibition').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const d = JSON.parse(btn.closest('tr').dataset.exhibition);
+                form.reset();
+                form.action = updateBase + '/' + d.id;
+                document.getElementById('exMethod').value = 'PUT';
+                document.getElementById('exModalTitle').textContent = @json(__('Edit Exhibition'));
+                setVal('exTitle', d.title);
+                setVal('exLocation', d.location);
+                setVal('exStart', d.start);
+                setVal('exEnd', d.end);
+                setVal('exTag', d.tag);
+                setVal('exTagColor', d.tagColor);
+                setVal('exStatus', d.status);
+                modal.show();
+            });
         });
     })();
 </script>

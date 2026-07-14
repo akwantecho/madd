@@ -1,9 +1,10 @@
 @php
     $map = [
-        'High'   => ['red', 'bi-arrow-up'],
-        'Medium' => ['amber', 'bi-dash'],
-        'Low'    => ['gray', 'bi-arrow-down'],
+        'High'   => 'red',
+        'Medium' => 'amber',
+        'Low'    => 'green',
+        'Normal' => 'blue',
     ];
-    [$color, $icon] = $map[$priority] ?? ['gray', 'bi-dash'];
+    $color = $map[$priority] ?? 'gray';
 @endphp
-<span class="tag {{ $color }}"><i class="bi {{ $icon }}"></i> {{ __($priority) }}</span>
+<span class="badge-soft {{ $color }}">{{ __($priority) }}</span>

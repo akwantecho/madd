@@ -1,5 +1,6 @@
 @php
     $icons = [
+        'Draft'     => 'bi-pencil-square',
         'Active'    => 'bi-broadcast',
         'Upcoming'  => 'bi-clock',
         'Completed' => 'bi-check-circle',

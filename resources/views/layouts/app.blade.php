@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', __('Dashboard')) — {{ __('Event Puls System') }}</title>
 
     {{-- Bootstrap 5 (RTL or LTR build depending on locale) --}}
@@ -15,7 +16,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 </head>
@@ -27,6 +28,12 @@
         @include('partials.topbar')
 
         <main class="content">
+            @if (session('status'))
+                <div class="flash flash-ok" role="status"><i class="bi bi-check-circle-fill"></i><span>{{ session('status') }}</span><button type="button" class="flash-x" onclick="this.parentElement.remove()"><i class="bi bi-x"></i></button></div>
+            @endif
+            @if ($errors->any())
+                <div class="flash flash-err" role="alert"><i class="bi bi-exclamation-triangle-fill"></i><span>{{ $errors->first() }}</span><button type="button" class="flash-x" onclick="this.parentElement.remove()"><i class="bi bi-x"></i></button></div>
+            @endif
             @yield('content')
         </main>
     </div>
@@ -36,6 +43,7 @@
 <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ asset('js/dropdown.js') }}"></script>
 <script>
     (function () {
         const toggle = document.getElementById('sidebarToggle');

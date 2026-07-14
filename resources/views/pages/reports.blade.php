@@ -2,7 +2,7 @@
 @section('title', __('Reports'))
 
 @section('content')
-    <div class="page-head">
+    <div class="page-head head-bar full-bleed sheet-aligned">
         <div>
             <h1>{{ __('Reports') }}</h1>
             <p class="subtitle">{{ __('Analytics and exportable reports across the system') }}</p>
@@ -10,59 +10,47 @@
         <button class="btn-brand"><i class="bi bi-download"></i>{{ __('Export') }}</button>
     </div>
 
-    {{-- Summary KPIs --}}
-    <div class="kpi-grid">
-        @foreach ($summary as $s)
-            <div class="kpi-card">
-                <div class="kpi-top">
-                    <span class="kpi-icon {{ $s['color'] }}"><i class="bi {{ $s['icon'] }}"></i></span>
-                    <span class="delta {{ $s['dir'] }}">
-                        <i class="bi bi-arrow-{{ $s['dir'] === 'up' ? 'up' : 'down' }}"></i>{{ $s['change'] }}
-                    </span>
-                </div>
-                <div class="k-value">{{ $s['value'] }}</div>
-                <div class="k-label">{{ __($s['key']) }}</div>
-            </div>
-        @endforeach
-    </div>
-
     {{-- Available reports --}}
-    <div class="card-head" style="border:0; padding:0 0 14px;">
-        <h2>{{ __('Available Reports') }}</h2>
+    <div class="toolbar full-bleed sheet-aligned">
+        <strong>{{ __('Available Reports') }}</strong>
     </div>
-    <div class="grid-3" style="margin-bottom: 24px;">
-        @foreach ($reports as $r)
-            <a href="{{ route($r['route']) }}" class="hub-card">
-                <span class="hub-icon {{ $r['color'] }}"><i class="bi {{ $r['icon'] }}"></i></span>
-                <div>
-                    <div class="hub-title">{{ __($r['title']) }}</div>
-                    <div class="hub-desc">{{ $r['desc'] }}</div>
-                </div>
-                <span class="hub-count"><i class="bi bi-chevron-{{ app()->getLocale() === 'ar' ? 'left' : 'right' }}" style="font-size:16px;color:var(--muted-2);"></i></span>
-            </a>
-        @endforeach
+    <div class="full-bleed sheet-aligned" style="padding-block:16px;">
+        <div class="grid-3">
+            @foreach ($reports as $r)
+                <a href="{{ route($r['route']) }}" class="hub-card">
+                    <span class="hub-icon {{ $r['color'] }}"><i class="bi {{ $r['icon'] }}"></i></span>
+                    <div>
+                        <div class="hub-title">{{ __($r['title']) }}</div>
+                        <div class="hub-desc">{{ $r['desc'] }}</div>
+                    </div>
+                    <span class="hub-count"><i class="bi bi-chevron-{{ app()->getLocale() === 'ar' ? 'left' : 'right' }}" style="font-size:16px;color:var(--muted-2);"></i></span>
+                </a>
+            @endforeach
+        </div>
     </div>
 
-    {{-- Recently generated reports --}}
-    <div class="card">
-        <div class="card-head">
-            <h2>{{ __('Recently Generated') }}</h2>
-        </div>
-        <div class="card-body p-0">
+    {{-- Recently generated --}}
+    <div class="toolbar full-bleed sheet-aligned">
+        <strong>{{ __('Recently Generated') }}</strong>
+    </div>
+    <div class="full-bleed">
+        <div class="sheet-frame">
             <div class="table-wrap">
-                <table class="data">
+                <table class="data sheet">
                     <thead>
                     <tr>
+                        <th style="width:46px">#</th>
                         <th>{{ __('Report') }}</th>
                         <th>{{ __('Type') }}</th>
                         <th>{{ __('Date') }}</th>
                         <th>{{ __('Format') }}</th>
-                        <th>{{ __('Actions') }}</th>
+                        <th style="width:90px">{{ __('Actions') }}</th>
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach ($recent as $item)
+                    @forelse ($recent as $item)
                         <tr>
+                            <td class="cell-muted">{{ $loop->iteration }}</td>
                             <td class="cell-strong"><i class="bi bi-file-earmark-bar-graph me-1"></i>{{ $item['title'] }}</td>
                             <td class="cell-muted">{{ __($item['type']) }}</td>
                             <td class="cell-muted">{{ $item['date'] }}</td>
@@ -74,7 +62,9 @@
                                 </div>
                             </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr><td colspan="6" class="cell-muted" style="text-align:center; padding:2rem;">{{ __('No reports generated yet') }}</td></tr>
+                    @endforelse
                     </tbody>
                 </table>
             </div>
