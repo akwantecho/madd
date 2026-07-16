@@ -8,6 +8,7 @@
         'Paid'      => 'bi-check-circle',
         'Unpaid'    => 'bi-hourglass-split',
         'Overdue'   => 'bi-exclamation-circle',
+        'Refunded'  => 'bi-arrow-return-left',
     ];
     $icon = $icons[$status] ?? 'bi-circle';
 @endphp

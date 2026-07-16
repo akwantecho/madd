@@ -22,7 +22,7 @@
     </div>
 
     <div class="toolbar full-bleed sheet-aligned" style="padding-block:0;">
-        <div class="tabs" style="border:0; margin:0;">
+        <div class="tabs">
             <a href="{{ route('finance', ['tab' => 'accounts']) }}" class="tab {{ $active === 'accounts' ? 'active' : '' }}">
                 <i class="bi bi-bank"></i>{{ __('Bank Accounts') }}
             </a>

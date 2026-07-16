@@ -21,7 +21,7 @@
     </div>
 
     <div class="toolbar full-bleed sheet-aligned" style="padding-block:0;">
-        <div class="tabs" style="border:0; margin:0;">
+        <div class="tabs">
             <a href="{{ route('contracts', ['tab' => 'contracts']) }}" class="tab {{ $active === 'contracts' ? 'active' : '' }}">
                 <i class="bi bi-file-earmark-text"></i>{{ __('Contracts') }}
             </a>

@@ -18,7 +18,7 @@
     </div>
 
     <div class="toolbar full-bleed sheet-aligned" style="padding-block:0;">
-        <div class="tabs" style="border:0; margin:0;">
+        <div class="tabs">
             @foreach ($tabs as $key => $tab)
                 <a href="{{ route('finance.account', [$account['id'], 'tab' => $key]) }}"
                    class="tab {{ $active === $key ? 'active' : '' }}">

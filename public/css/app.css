@@ -943,3 +943,396 @@ tr.row-link:hover { background: var(--gray-bg); }
     .stat-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 575.98px) { .content { --content-pad: 12px; } }
+
+/* ==========================================================================
+   THEME OVERRIDE — "Untitled UI" light theme
+   Full UI reskin layered on top of the base styles. No markup/logic changes:
+   redefines design tokens + a handful of component surfaces so every page
+   inherits the new look through the existing shared classes.
+   ========================================================================== */
+:root {
+    /* Brand & ink */
+    --brand: #7f56d9;
+    --brand-soft: #f9f5ff;
+    --ink: #181d27;
+    --ink-2: #414651;
+    --muted: #535862;
+    --muted-2: #a4a7ae;
+
+    /* Lines & surfaces */
+    --line: #e9eaeb;
+    --line-2: #f5f5f5;
+    --bg: #ffffff;
+    --panel: #ffffff;
+    --card: #ffffff;
+    --hover: #fafafa;
+
+    /* Radii & shadow */
+    --radius: 12px;
+    --radius-sm: 8px;
+    --radius-lg: 16px;
+    --shadow-card: 0 1px 2px rgba(16, 24, 40, .05);
+    --sidebar-w: 280px;
+
+    /* Light sidebar (was dark navy) */
+    --sidebar: #ffffff;
+    --sidebar-ink: #414651;
+    --sidebar-muted: #717680;
+    --sidebar-hover: #fafafa;
+    --sidebar-active: #f5f5f5;
+    --sidebar-line: #e9eaeb;
+    --sidebar-field: #ffffff;
+    --brand-header: #ffffff;
+
+    /* Status palette (Untitled UI) */
+    --green: #067647;  --green-bg: #ecfdf3;
+    --blue: #175cd3;   --blue-bg: #eff8ff;
+    --amber: #b54708;  --amber-bg: #fffaeb;
+    --red: #b42318;    --red-bg: #fef3f2;
+    --gray: #414651;   --gray-bg: #f5f5f5;
+    --purple: #6941c6; --purple-bg: #f9f5ff;
+}
+
+/* ---- Typography: Inter body + Instrument Serif display headings ---- */
+body { font-family: 'Inter', 'IBM Plex Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+[dir="rtl"] body { font-family: 'IBM Plex Sans Arabic', 'Inter', system-ui, sans-serif; }
+
+/* Italic serif page titles — Latin only (Arabic keeps its clean sans face) */
+[dir="ltr"] .page-head h1,
+[dir="ltr"] .mt-title {
+    font-family: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: 0;
+}
+.page-head h1 { font-size: 30px; }
+
+/* ---- Full-bleed app shell (no gutter around the panel) ---- */
+@media (min-width: 992px) {
+    body { padding: 0; background: var(--bg); }
+    .layout {
+        height: 100vh;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        overflow: hidden;
+    }
+    .sidebar { border-inline-end: 1px solid var(--line); }
+}
+
+/* ---- Sidebar: light brand area + dark wordmark ---- */
+.sidebar-brand {
+    background: var(--sidebar);
+    color: var(--ink);
+    border-bottom: 1px solid var(--sidebar-line);
+    padding: 18px 20px;
+}
+.sidebar-brand .brand-logo { filter: brightness(0); opacity: .88; }
+.brand-collapse { color: var(--muted-2); }
+
+/* Search field readable on white */
+.sidebar-search { background: var(--sidebar-field); border-color: var(--sidebar-line); }
+.sidebar-search input { color: var(--ink); }
+.sidebar-search input::placeholder { color: var(--sidebar-muted); }
+.search-kbd { color: var(--muted); border-color: var(--line); background: #fff; }
+
+/* User chip readable on white */
+.sidebar .user-meta strong { color: var(--ink); }
+.sidebar .user-chip { border-color: var(--sidebar-line); }
+.sidebar .user-chip .avatar { background: var(--brand-soft); color: var(--brand); }
+
+/* Nav items: light hover + soft-gray active pill with brand icon */
+.sidebar-nav .nav-link { color: var(--sidebar-ink); font-weight: 500; }
+.sidebar-nav .nav-link i { color: var(--sidebar-muted); }
+.sidebar-nav .nav-link:hover { background: var(--sidebar-hover); color: var(--ink); }
+.sidebar-nav .nav-link:hover i { color: var(--ink-2); }
+.sidebar-nav .nav-link.active { background: var(--sidebar-active); color: var(--ink); font-weight: 600; }
+.sidebar-nav .nav-link.active i { color: var(--brand); }
+.nav-group-label { color: var(--sidebar-muted); }
+
+/* ---- Primary button: refined dark ---- */
+.btn-brand { border-radius: var(--radius-sm); box-shadow: 0 1px 2px rgba(16, 24, 40, .08); }
+
+/* ---- Cards: softer elevation ---- */
+.card, .kpi-card, .stat-card, .hub-card { box-shadow: var(--shadow-card); }
+.tab.active { color: var(--brand); border-bottom-color: var(--brand); }
+
+/* ==========================================================================
+   TABLE DESIGN SYSTEM — the single table style across the whole app.
+   Premium / spacious / calm. Whitespace over borders. Applied globally via the
+   shared table classes + status partial, so every list inherits it uniformly
+   (one source of truth, no duplicated styling).
+   ========================================================================== */
+
+/* -- The list column: title, filters and table share one 32px-inset column -- */
+/* (base .full-bleed uses !important on margin, so match it to override) */
+.content .full-bleed.head-bar,
+.content .full-bleed.toolbar {
+    margin-inline: 32px !important;
+    padding-inline: 0;
+    background: transparent;
+    border-bottom: 0;
+}
+.content .full-bleed.head-bar { margin-bottom: 24px; }        /* title → filters gap */
+.content .full-bleed.toolbar { margin-bottom: 16px; gap: 16px; }
+.content .full-bleed.toolbar .toolbar-start { gap: 16px; }
+
+/* -- Container card: 20px radius, hairline border, no shadow, 32px gutter -- */
+.content .full-bleed > .sheet-frame {
+    margin-inline: 32px;
+    border: 1px solid #ececec;
+    border-radius: 20px;
+    box-shadow: none;
+    overflow: hidden;
+    background: #fff;
+}
+.content .full-bleed > .pagination-bar { margin-inline: 32px; border-top: 0; }
+
+/* -- Header: 56px tall, calm gray labels, no ALL CAPS, hairline rule -- */
+table.data thead th,
+table.data.sheet thead th {
+    height: 56px; padding: 0 24px;
+    background: #fff; color: #6b7280;
+    font-size: 14px; font-weight: 600; text-transform: none; letter-spacing: 0;
+    border-bottom: 1px solid #f0f0f0; vertical-align: middle; white-space: nowrap;
+}
+
+/* -- Rows: 76px, spacious, readable, smooth hover -- */
+table.data tbody td,
+table.data.sheet tbody td {
+    height: 76px; padding: 0 24px; vertical-align: middle;
+    font-size: 15px; font-weight: 500; color: #111827;
+}
+table.data tbody tr { border-bottom: 1px solid #f4f4f4; transition: background .15s ease-out; }
+table.data tbody tr:last-child { border-bottom: 0; }
+table.data tbody tr:hover { background: #fafafa; cursor: pointer; }
+table.data tbody tr.is-selected, tr.row-link.is-selected { background: #f7f9fc; }
+.cell-strong { font-weight: 600; color: #111827; }
+.cell-muted { font-size: 14px; font-weight: 500; color: #6b7280; }
+
+/* -- Checkbox: small, rounded, never oversized -- */
+.checkbox { width: 18px; height: 18px; accent-color: var(--brand); border-radius: 6px; border: 1.5px solid #d9d9d9; transition: .15s ease-out; }
+
+/* -- Status badge: soft pill, 28px, icon inside, per design tokens -- */
+.pill {
+    height: 28px; padding: 0 12px; gap: 6px;
+    border: 0; border-radius: 999px; box-shadow: none;
+    font-size: 13px; font-weight: 600;
+    background: #f3f4f6; color: #6b7280;
+}
+.pill i { font-size: 12px; color: inherit; }
+.pill.active, .pill.paid, .pill.completed                  { background: #eef8f1; color: #1f7a45; }
+.pill.upcoming, .pill.unpaid, .pill.opened, .pill.refunded { background: #fff7e8; color: #b7791f; }
+.pill.cancelled, .pill.overdue                             { background: #fdecec; color: #c53030; }
+.pill.draft, .pill.ignored                                 { background: #f3f4f6; color: #6b7280; }
+
+/* Soft badges (tags) — clean, no ring */
+.badge-soft { box-shadow: none; height: 24px; padding: 0 10px; border-radius: 999px; }
+
+/* -- Customer / user cell: 40px avatar + name + email -- */
+.user-cell { display: flex; align-items: center; gap: 12px; }
+.user-cell .avatar { width: 40px; height: 40px; border-radius: 50%; font-size: 14px; }
+.user-cell strong, .user-cell .u-name { font-size: 15px; font-weight: 600; color: #111827; }
+.user-cell small, .user-cell .u-mail { font-size: 14px; color: #6b7280; }
+
+/* -- Primary id (invoice/contract no.): medium, clickable, underline on hover -- */
+.cell-strong a, .cell-link, td .id-link { color: #111827; cursor: pointer; text-decoration: none; }
+.cell-strong a:hover, .cell-link:hover, td .id-link:hover { text-decoration: underline; }
+
+/* -- Actions: reveal on row hover, smooth -- */
+.row-actions { opacity: 0; transition: opacity .15s ease-out; }
+tr:hover .row-actions, .row-actions:focus-within { opacity: 1; }
+.row-actions a, .row-actions button { transition: all .15s ease-out; }
+
+/* -- Filter fields: 52px, 14px radius, calm border, gray placeholder -- */
+.search-input,
+.toolbar .chip,
+.toolbar .ep-select .ep-select-btn,
+.toolbar .form-select,
+.toolbar .form-control {
+    min-height: 52px; border-radius: 14px; border: 1px solid #e9e9e9; background: #fff;
+    font-size: 15px; font-weight: 500;
+}
+.search-input { padding-inline: 16px; }
+.search-input input { font-size: 15px; font-weight: 500; }
+.search-input input::placeholder,
+.form-control::placeholder { color: #9ca3af; }
+
+/* -- Pagination: centered numbers, underline current, rounded outline btns -- */
+.pagination-bar { padding: 20px 24px; border-top: 1px solid #f0f0f0; }
+.pagination-bar .page-btn {
+    height: 44px; border-radius: 12px; border: 1px solid #e9e9e9; background: #fff;
+    display: inline-flex; align-items: center; gap: 8px; font-weight: 600; padding-inline: 16px;
+    transition: background .15s ease-out;
+}
+.pagination-bar .page-btn:hover { background: #fafafa; }
+.page-nums { gap: 8px; }
+.page-num { min-width: 40px; height: 40px; border-radius: 10px; transition: background .15s ease-out; }
+.page-num:hover { background: #fafafa; }
+.page-num.active { background: transparent; color: #111827; font-weight: 700; border-radius: 0; border-bottom: 2px solid #111827; }
+.page-num.active:hover { background: transparent; }
+.pagination-bar > .page-btn:first-child::before { content: "\2190"; font-size: 15px; }
+.pagination-bar > .page-btn:last-child::after   { content: "\2192"; font-size: 15px; }
+[dir="rtl"] .pagination-bar > .page-btn:first-child::before { content: "\2192"; }
+[dir="rtl"] .pagination-bar > .page-btn:last-child::after   { content: "\2190"; }
+
+/* -- Inputs / focus rings (accessibility) -- */
+.search-input:focus-within,
+.form-control:focus, .form-select:focus,
+.ep-select-btn:focus-visible { box-shadow: 0 0 0 3px #f4ebff; border-color: var(--brand); }
+.checkbox:focus-visible, .page-num:focus-visible, .page-btn:focus-visible,
+.row-actions a:focus-visible, .row-actions button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+/* -- Empty state: centered, calm -- */
+.empty-state { padding: 72px 24px; }
+
+/* -- Responsive: reduce padding on tablet, keep touch targets on mobile -- */
+@media (max-width: 991.98px) {
+    .content .full-bleed.head-bar,
+    .content .full-bleed.toolbar { margin-inline: 16px !important; }
+    .content .full-bleed > .sheet-frame,
+    .content .full-bleed > .pagination-bar { margin-inline: 16px; }
+    table.data thead th, table.data.sheet thead th,
+    table.data tbody td, table.data.sheet tbody td { padding: 0 16px; }
+    table.data tbody td, table.data.sheet tbody td { height: 68px; }
+    .row-actions { opacity: 1; }   /* no hover on touch devices */
+}
+
+/* ==========================================================================
+   SEGMENTED CONTROL / PILL TABS — replaces the old underline .tabs/.tab.
+   Outer capsule + inner active pill. One style everywhere .tabs is used.
+   ========================================================================== */
+.tabs {
+    display: inline-flex;
+    align-items: stretch;
+    gap: 2px;
+    height: 45px;
+    padding: 5px;
+    margin: 0;
+    border: 1px solid #e5e3df;
+    border-radius: 9999px;
+    background: #ffffff;
+    box-shadow: none;
+    max-width: 100%;
+}
+.tab {
+    flex: 1 0 auto;                   /* equal minimum width for every tab */
+    min-width: 132px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 35px;
+    padding: 0 28px;
+    border: 0;
+    border-radius: 9999px;
+    background: transparent;
+    color: #a5a3a0;
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background .15s ease-out, color .15s ease-out;
+}
+.tab i { font-size: 18px; }
+.tab:hover { color: #111111; }
+.tab.active {
+    background: #f7f8f9;
+    color: #111111;
+    font-weight: 600;
+    border: 0;                        /* no underline, no divider */
+    box-shadow: none;
+}
+.tab.active i { color: #111111; }
+
+/* tabs sit on a transparent toolbar now — keep them from stretching full row */
+.toolbar .tabs { flex: 0 0 auto; }
+
+/* Small screens: let a long tab bar scroll instead of overflowing */
+@media (max-width: 575.98px) {
+    .tabs { max-width: 100%; overflow-x: auto; }
+    .tab { padding: 0 20px; font-size: 15px; }
+}
+
+/* ==========================================================================
+   UNIFIED CONTROL HEIGHT — search, buttons, chips, filter selects share one
+   height so header + toolbar rows line up with the 45px tabs.
+   ========================================================================== */
+:root { --control-h: 45px; }
+
+.search-input,
+.btn-brand,
+.chip,
+.toolbar .ep-select .ep-select-btn,
+.toolbar .form-select,
+.toolbar .form-control {
+    height: var(--control-h);
+    min-height: var(--control-h);
+    display: inline-flex;
+    align-items: center;
+    padding-block: 0;
+}
+.btn-brand { padding-inline: 18px; }
+.chip { padding-inline: 14px; }
+.search-input { padding-inline: 16px; }
+.toolbar .ep-select .ep-select-btn,
+.toolbar .form-select,
+.toolbar .form-control { padding-block: 0; }
+
+/* ==========================================================================
+   TYPOGRAPHY SCALE — one calm, consistent type scale for the app chrome.
+   Tames the mismatched oversized/over-bold headings across pages.
+   (The printed invoice/contract document .dp-*/.inv-* keeps its own scale.)
+   ========================================================================== */
+:root {
+    --fs-page: 26px;     /* page title (H1) */
+    --fs-modal: 22px;    /* modal / detail title */
+    --fs-metric: 24px;   /* big KPI numbers */
+    --fs-section: 18px;  /* section heading */
+    --fs-card: 15px;     /* card / item title */
+    --fs-body: 14px;     /* body text */
+    --fs-sm: 13px;       /* secondary / muted */
+    --fs-xs: 12px;       /* micro labels */
+}
+
+/* -- Page titles (serif italic on LTR, sans on RTL) -- */
+.page-head h1,
+.mt-title { font-size: var(--fs-page); font-weight: 600; letter-spacing: -.01em; }
+.page-head .subtitle,
+.mt-date { font-size: var(--fs-body); }
+
+/* -- Modal / detail titles -- */
+.td-title { font-size: var(--fs-modal); font-weight: 700; letter-spacing: -.01em; }
+
+/* -- Big metric numbers: emphasis without shouting -- */
+.kpi-card .k-value { font-size: var(--fs-metric); font-weight: 700; }
+.stat-metric .m-value { font-size: 22px; font-weight: 700; }
+.kpi-card .k-label,
+.stat-metric .m-label,
+.stat-card .sc-head h3 { font-size: var(--fs-sm); }
+
+/* -- Section headings -- */
+.tb-month,
+.inv-sec-title,
+.td-comments-title,
+.dp-due-amount { font-size: var(--fs-section); }
+.inv-sec-title,
+.td-comments-title { font-weight: 700; }
+
+/* -- Card / item titles: one size, semibold -- */
+.card-head h2,
+.hub-card .hub-title,
+.ex-title,
+.td-file strong,
+.td-sub-head strong { font-size: var(--fs-card); font-weight: 600; }
+
+/* -- Detail meta rows: no oversized labels -- */
+.td-mlabel,
+.td-mval { font-size: var(--fs-card); }
+
+/* -- Normalize remaining heavy weights in the app chrome to 700 max -- */
+.mt-title,
+.mt-tab.active,
+.tb-col-title { font-weight: 600; }

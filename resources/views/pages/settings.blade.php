@@ -18,7 +18,7 @@
     </div>
 
     <div class="toolbar full-bleed sheet-aligned" style="padding-block:0;">
-        <div class="tabs" style="border:0; margin:0;">
+        <div class="tabs">
             <a href="{{ route('settings', ['tab' => 'general']) }}" class="tab {{ $active === 'general' ? 'active' : '' }}">
                 <i class="bi bi-sliders"></i>{{ __('General Settings') }}
             </a>

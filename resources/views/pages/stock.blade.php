@@ -20,7 +20,7 @@
     </div>
 
     <div class="toolbar full-bleed sheet-aligned" style="padding-block:0;">
-        <div class="tabs" style="border:0; margin:0;">
+        <div class="tabs">
             @foreach ($types as $key => $type)
                 <a href="{{ route('stock', ['type' => $key]) }}" class="tab {{ $active === $key ? 'active' : '' }}">
                     <i class="bi {{ $type['icon'] }}"></i>{{ __($type['label']) }}
